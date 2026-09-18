@@ -37,6 +37,12 @@ namespace Patroclus.Avalonia.ViewModels
 
         public int port { get; set; } //Port for the Client to use
 
+        //DH1KLM: P2 discovery reports the HPSDRHW board value directly.
+        public byte boardID { get; set; } = 1;
+        public string boardName { get; set; } = "Hermes";
+        public byte codeVersion { get; set; } = 23;
+        public byte protocolSupported { get; set; } = 0;
+        public byte numRxs { get; set; } = 7;
 
         IPEndPoint ClientIpEndPoint;
 
@@ -466,13 +472,15 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                 response[9] = 0x00;
                 response[10] = 0x01;
 
-                response[11] = 0x02;//board type
-                response[12] = 23;//code version
-
-                response[20] = 7;
+                //DH1KLM: Thetis reads P2 board type from byte 11, protocol support from byte 12,
+                // code version from byte 13 and receiver count from byte 20.
+                response[11] = boardID;
+                response[12] = protocolSupported;
+                response[13] = codeVersion;
+                response[20] = numRxs;
                 response[21] = 1;
 
-                status = "Discovered";
+                status = "Discovered: " + boardName;
                 seqNo = 1;
                 generalClient.Client.Send(response, response.Length, packet.endPoint);
                 packetsSent++;
