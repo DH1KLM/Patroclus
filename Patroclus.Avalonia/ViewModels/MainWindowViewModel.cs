@@ -1,7 +1,5 @@
 ﻿using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Patroclus.Avalonia.ViewModels
 {
@@ -14,89 +12,78 @@ namespace Patroclus.Avalonia.ViewModels
             set { this.RaiseAndSetIfChanged(ref _radio, value); }
         }
 
-        private int _testi=137;
-        public int testi
-        {
-            get { return _testi; }
-            set { this.RaiseAndSetIfChanged(ref _testi, value); }
-        }
-
-        private int _radioType=0;
+        private int _radioType = 0;
         public int radioType
         {
             get { return _radioType; }
-            set {
-                if(value!=_radioType)
+            set
+            {
+                if (value != _radioType)
                 {
-                    switch(value)
-                    {
-                        case 0: loadHermes();break;
-                        case 1: loadHermesNP(); break;
-                        case 2: loadHermesLite(); break;
-                        case 3: loadHermesLite2(); break;
-                    }
+                    LoadRadio(value);
+                    this.RaiseAndSetIfChanged(ref _radioType, value);
                 }
-                this.RaiseAndSetIfChanged(ref _radioType, value);
             }
         }
+
         public MainWindowViewModel()
         {
-            loadHermes();
-
-            var s = String.Format("{0:x8}", testi);
-            Console.WriteLine(s);
+            LoadRadio(0);
         }
 
-        private void loadHermes()
+        private void LoadRadio(int type)
         {
-            if (radio != null) radio.Stop();
-            var hermes = new FakeHermes();
+            if (radio != null)
+                radio.Stop();
 
-            hermes.boardID = 1;
-            hermes.hermesCodeVersion = 30;
-            hermes.port = 1024;
-            hermes.start();
-
-            radio = hermes;
-            
+            //DH1KLM: Keep protocol selection explicit. P1 uses the existing Hermes frame engine;
+            // P2 uses the existing Ethernet frame engine. Only the board identity changes.
+            switch (type)
+            {
+                case 0: LoadP1(HpsdrBoards.Hermes); break;
+                case 1: LoadP1(HpsdrBoards.Angelia); break;
+                case 2: LoadP1(HpsdrBoards.Orion); break;
+                case 3: LoadP1(HpsdrBoards.OrionMkII); break;
+                case 4: LoadP1(HpsdrBoards.Saturn); break;
+                case 5: LoadP2(HpsdrBoards.Hermes); break;
+                case 6: LoadP2(HpsdrBoards.Angelia); break;
+                case 7: LoadP2(HpsdrBoards.Orion); break;
+                case 8: LoadP2(HpsdrBoards.OrionMkII); break;
+                case 9: LoadP2(HpsdrBoards.Saturn); break;
+                case 10: LoadP1(HpsdrBoards.HermesLite); break;
+                case 11: LoadP2(HpsdrBoards.HermesLite); break;
+                default: LoadP1(HpsdrBoards.Hermes); break;
+            }
         }
-        private void loadHermesLite()
+
+        private void LoadP1(HpsdrBoardProfile board)
         {
-            if (radio != null) radio.Stop();
-            var hermes = new FakeHermes();
+            var hermes = new FakeHermes
+            {
+                boardID = board.P1BoardId,
+                boardName = board.Name,
+                hermesCodeVersion = 30,
+                port = 1024
+            };
 
-            hermes.boardID = 6;
-            hermes.hermesCodeVersion = 30;
-            hermes.port = 1024;
             hermes.start();
-
             radio = hermes;
-            
         }
-        private void loadHermesLite2()
+
+        private void LoadP2(HpsdrBoardProfile board)
         {
-            if (radio != null) radio.Stop();
-            var hermes = new FakeHermes();
+            var radioP2 = new FakeHermesNewProtocol
+            {
+                boardID = board.P2BoardId,
+                boardName = board.Name,
+                codeVersion = 23,
+                protocolSupported = 0,
+                numRxs = 7,
+                port = 1024
+            };
 
-            hermes.boardID = 6;
-            hermes.hermesCodeVersion = 40;
-            hermes.port = 1024;
-            hermes.start();
-
-            radio = hermes;
-            
-        }
-        private void loadHermesNP()
-        {
-            if (radio != null) radio.Stop();
-
-            var hermes = new FakeHermesNewProtocol();
-
-            hermes.port = 1024;
-            hermes.start();
-
-            radio = hermes;
-            
+            radioP2.start();
+            radio = radioP2;
         }
     }
 }
