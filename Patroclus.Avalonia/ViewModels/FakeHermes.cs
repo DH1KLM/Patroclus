@@ -24,8 +24,10 @@ namespace Patroclus.Avalonia.ViewModels
         private Thread handleCommsThread;
 
         public int port { get; set; } //Port for the Client to use
+        //DH1KLM: P1 board ID is supplied by the Thetis-based board profile.
         public byte boardID { get; set; }
         public byte hermesCodeVersion { get; set; }
+        public string boardName { get; set; } = "Hermes";
         
         ConcurrentQueue<receivedPacket> msgQueue = new ConcurrentQueue<receivedPacket>();
         
@@ -447,7 +449,7 @@ namespace Patroclus.Avalonia.ViewModels
                 response[9] = hermesCodeVersion;//code version
                 response[10] = boardID;//board type
                 
-                status = "Discovered";
+                status = "Discovered: " + boardName;
                 seqNo = 1;
                 seqNoBs = 1;
                 client.Send(response, response.Length, packet.endPoint);
