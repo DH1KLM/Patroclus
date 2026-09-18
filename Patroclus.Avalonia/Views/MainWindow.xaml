@@ -19,10 +19,18 @@
       <StackPanel Orientation="Horizontal" Spacing="10">
         <TextBlock Text="Radio:" />
         <DropDown SelectedIndex="{Binding radioType, Mode=TwoWay}"  >
-          <DropDownItem>HPSDR Hermes</DropDownItem>
-          <DropDownItem>HPSDR Hermes new protocol</DropDownItem>
-          <DropDownItem>Hermes Lite</DropDownItem>
-          <DropDownItem>Hermes Lite 2</DropDownItem>
+          <DropDownItem>Hermes - Protocol 1</DropDownItem>
+          <DropDownItem>Angelia - Protocol 1</DropDownItem>
+          <DropDownItem>Orion - Protocol 1</DropDownItem>
+          <DropDownItem>Orion MkII - Protocol 1</DropDownItem>
+          <DropDownItem>Saturn - Protocol 1</DropDownItem>
+          <DropDownItem>Hermes - Protocol 2</DropDownItem>
+          <DropDownItem>Angelia - Protocol 2</DropDownItem>
+          <DropDownItem>Orion - Protocol 2</DropDownItem>
+          <DropDownItem>Orion MkII - Protocol 2</DropDownItem>
+          <DropDownItem>Saturn - Protocol 2</DropDownItem>
+          <DropDownItem>Hermes Lite - Protocol 1</DropDownItem>
+          <DropDownItem>Hermes Lite - Protocol 2</DropDownItem>
         </DropDown>
       </StackPanel>
        
