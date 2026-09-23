@@ -1,42 +1,24 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="clr-namespace:Patroclus.Avalonia.ViewModels;assembly=Patroclus.Avalonia"
-        xmlns:v="clr-namespace:Patroclus.Avalonia.Views;assembly=Patroclus.Avalonia"
-        xmlns:c="clr-namespace:Patroclus.Avalonia.Controls;assembly=Patroclus.Avalonia"
-        xmlns:p="clr-namespace:Patroclus;assembly=Patroclus.Avalonia"
-        Icon="avares://Patroclus.Avalonia/Assets/avalonia-logo.ico"
-        Title="Patroclus.Avalonia"
-        x:Class="Patroclus.Avalonia.Views.MainWindow"
-        Width="600" Height="400"
-        >
-  <!--
-  <Design.DataContext>
-    <vm:MainWindowViewModel/>
-  </Design.DataContext>-->
-
-  <DockPanel >
-    <StackPanel DockPanel.Dock="Top">
-      <StackPanel Orientation="Horizontal" Spacing="10">
-        <TextBlock Text="Radio:" />
-        <DropDown SelectedIndex="{Binding radioType, Mode=TwoWay}"  >
-          <DropDownItem>Hermes - Protocol 1</DropDownItem>
-          <DropDownItem>Angelia - Protocol 1</DropDownItem>
-          <DropDownItem>Orion - Protocol 1</DropDownItem>
-          <DropDownItem>Orion MkII - Protocol 1</DropDownItem>
-          <DropDownItem>Saturn - Protocol 1</DropDownItem>
-          <DropDownItem>Hermes - Protocol 2</DropDownItem>
-          <DropDownItem>Angelia - Protocol 2</DropDownItem>
-          <DropDownItem>Orion - Protocol 2</DropDownItem>
-          <DropDownItem>Orion MkII - Protocol 2</DropDownItem>
-          <DropDownItem>Saturn - Protocol 2</DropDownItem>
-          <DropDownItem>Hermes Lite - Protocol 1</DropDownItem>
-          <DropDownItem>Hermes Lite - Protocol 2</DropDownItem>
-        </DropDown>
-      </StackPanel>
-       
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:v="clr-namespace:Patroclus.Avalonia.Views;assembly=Patroclus.Avalonia" Icon="avares://Patroclus.Avalonia/Assets/avalonia-logo.ico" Title="Patroclus — HPSDR Emulator" x:Class="Patroclus.Avalonia.Views.MainWindow" Width="900" Height="650" MinWidth="760" MinHeight="520">
+  <Grid RowDefinitions="Auto,*" Margin="24">
+    <StackPanel Grid.Row="0" Spacing="4">
+      <TextBlock Classes="title" Text="Patroclus"/>
+      <TextBlock Classes="subtitle" Text="OpenHPSDR / HPSDR protocol emulator"/>
     </StackPanel>
-    
-    <v:FakeRadioView DataContext="{Binding radio}"></v:FakeRadioView>
-    
-  </DockPanel>
+    <Grid Grid.Row="1" Margin="0,20,0,0" RowDefinitions="Auto,*,Auto" RowSpacing="16">
+      <Border Classes="card">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="18" RowSpacing="12">
+          <TextBlock Grid.Row="0" Grid.Column="0" Classes="section" VerticalAlignment="Center" Text="Radio profile"/>
+          <DropDown Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" SelectedIndex="{Binding radioType, Mode=TwoWay}">
+            <DropDownItem>Hermes — Protocol 1</DropDownItem><DropDownItem>Angelia — Protocol 1</DropDownItem><DropDownItem>Orion — Protocol 1</DropDownItem><DropDownItem>Orion MkII — Protocol 1</DropDownItem><DropDownItem>Saturn — Protocol 1</DropDownItem>
+            <DropDownItem>Hermes — Protocol 2</DropDownItem><DropDownItem>Angelia — Protocol 2</DropDownItem><DropDownItem>Orion — Protocol 2</DropDownItem><DropDownItem>Orion MkII — Protocol 2</DropDownItem><DropDownItem>Saturn — Protocol 2</DropDownItem>
+            <DropDownItem>Hermes Lite — Protocol 1</DropDownItem><DropDownItem>Hermes Lite — Protocol 2</DropDownItem>
+          </DropDown>
+          <TextBlock Grid.Row="1" Grid.Column="0" Classes="subtitle" VerticalAlignment="Center" Text="Discovery / protocol"/>
+          <TextBlock Grid.Row="1" Grid.Column="1" Classes="subtitle" VerticalAlignment="Center" Text="Select the board identity presented to the client."/>
+        </Grid>
+      </Border>
+      <Border Grid.Row="1" Classes="card" Padding="0"><v:FakeRadioView DataContext="{Binding radio}"/></Border>
+      <Border Grid.Row="2" Classes="status"><StackPanel Orientation="Horizontal" Spacing="10"><TextBlock FontWeight="SemiBold" Text="Status"/><TextBlock Classes="subtitle" Text="Patroclus is running and ready for HPSDR client connections."/></StackPanel></Border>
+    </Grid>
+  </Grid>
 </Window>
