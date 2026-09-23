@@ -3,6 +3,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Update="**\*.xaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
@@ -12,11 +13,11 @@
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\*" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.10.12" />
     <PackageReference Include="Avalonia.Desktop" Version="0.10.12" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.12" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="0.10.12" />
   </ItemGroup>
-  
 </Project>
