@@ -2,14 +2,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Patroclus.Avalonia"
              x:Class="Patroclus.Avalonia.App">
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
+  <Application.DataTemplates>
+    <local:ViewLocator/>
+  </Application.DataTemplates>
 
-    <Application.Styles>
-      <StyleInclude Source="avares://Avalonia.Themes.Default/DefaultTheme.xaml"/>
-      <StyleInclude Source="avares://Avalonia.Themes.Default/Accents/BaseLight.xaml"/>
-      <StyleInclude Source="avares://Patroclus.Avalonia/Controls/MultiSpinner.xaml"/>
-
-    </Application.Styles>
+  <Application.Styles>
+    <!-- DH1KLM: Use Avalonia Fluent styling instead of the legacy Default theme. -->
+    <FluentTheme Mode="Light"/>
+    <StyleInclude Source="avares://Patroclus.Avalonia/Styles/PatroclusStyles.xaml"/>
+    <StyleInclude Source="avares://Patroclus.Avalonia/Controls/MultiSpinner.xaml"/>
+  </Application.Styles>
 </Application>
