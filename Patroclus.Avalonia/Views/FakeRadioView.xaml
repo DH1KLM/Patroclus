@@ -1,37 +1,15 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:v="clr-namespace:Patroclus.Avalonia.Views;assembly=Patroclus.Avalonia"
-             xmlns:vm="clr-namespace:Patroclus.Avalonia.ViewModels;assembly=Patroclus.Avalonia"
-             xmlns:p="clr-namespace:Patroclus;assembly=Patroclus.Avalonia"
-             x:Class="Patroclus.Avalonia.Views.FakeRadioView"
-            >
-  <Grid RowDefinitions="auto,*"  >
-        
-        <Grid Background="AliceBlue">
-          <ContentControl Content="{Binding}">
-            <ContentControl.DataTemplates>
-              <DataTemplate DataType="{x:Type vm:FakeHermes}">
-                <v:FakeHermesView/>
-              </DataTemplate>
-              <DataTemplate DataType="{x:Type vm:FakeHermesNewProtocol}">
-                <v:FakeHermesNewProtocolView/>
-              </DataTemplate>
-            </ContentControl.DataTemplates>
-          </ContentControl>
-      </Grid>
-     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" >
-      <ItemsControl   Items="{Binding Path=receivers}" HorizontalAlignment="Left"  Margin="0,1,0,0" VerticalAlignment="Top" >
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-              <StackPanel Orientation="Vertical" Margin="0,1,0,1"  />
-            </ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <v:ReceiverView></v:ReceiverView>
-             </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-        </ScrollViewer>
-    </Grid>
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:v="clr-namespace:Patroclus.Avalonia.Views;assembly=Patroclus.Avalonia" xmlns:vm="clr-namespace:Patroclus.Avalonia.ViewModels;assembly=Patroclus.Avalonia" x:Class="Patroclus.Avalonia.Views.FakeRadioView">
+  <Grid RowDefinitions="Auto,*">
+    <Border Background="#F8FAFC" BorderBrush="#EAECF0" BorderThickness="0,0,0,1" Padding="12">
+      <ContentControl Content="{Binding}">
+        <ContentControl.DataTemplates><DataTemplate DataType="{x:Type vm:FakeHermes}"><v:FakeHermesView/></DataTemplate><DataTemplate DataType="{x:Type vm:FakeHermesNewProtocol}"><v:FakeHermesNewProtocolView/></DataTemplate></ContentControl.DataTemplates>
+      </ContentControl>
+    </Border>
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <ItemsControl Items="{Binding Path=receivers}" Margin="12" HorizontalAlignment="Stretch">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Vertical" Spacing="8"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate><DataTemplate><v:ReceiverView/></DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </Grid>
 </UserControl>
