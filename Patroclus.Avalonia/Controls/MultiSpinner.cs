@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using System;
 using System.Linq;
 using System.Globalization;
@@ -79,7 +78,8 @@ namespace Patroclus.Avalonia.Controls
         {
             HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
             TextAlignment = Avalonia.Media.TextAlignment.Right;
-            IsReadOnly = true;
+            //DH1KLM: TextBox remains editable so our digit handler receives text input.
+            IsReadOnly = false;
         }
 
         protected override void OnInitialized()
@@ -282,7 +282,7 @@ namespace Patroclus.Avalonia.Controls
             if (clipboard == null)
                 return;
 
-            var text = await clipboard.GetTextAsync();
+            var text = await clipboard.TryGetTextAsync();
             if (!string.IsNullOrWhiteSpace(text))
             {
                 var digits = new string(text.Where(char.IsDigit).ToArray());
