@@ -21,7 +21,7 @@
     <Border Classes="status" Padding="8">
       <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
         <ItemsControl Items="{Binding ccbits}">
-          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate><DataTemplate><TextBlock Margin="4,1" Text="{Binding Converter={x:Static p:StringConverters.StringFormat},ConverterParameter=\{0:x8\}}"/></DataTemplate></ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
