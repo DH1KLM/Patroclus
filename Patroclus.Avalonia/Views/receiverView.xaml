@@ -9,13 +9,19 @@
         <Button ToolTip.Tip="Add wav file generator" Command="{Binding AddWavCommand}"><TextBlock Text="WAV"/></Button>
       </StackPanel>
       <ItemsControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" ItemsSource="{Binding generators}">
-        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Vertical" Spacing="6"/></ItemsPanelTemplate>
-        <ItemsControl.ItemTemplate><DataTemplate><ContentControl Content="{Binding}">
-          <ContentControl.DataTemplates>
-            <DataTemplate DataType="{x:Type vm:WavFileGenerator}"><v:WavFileGeneratorView/></DataTemplate>
-            <DataTemplate DataType="{x:Type vm:SineWaveGenerator}"><v:SineWaveGeneratorView/></DataTemplate>
-          </ContentControl.DataTemplates>
-        </ContentControl></DataTemplate></ItemsControl.ItemTemplate>
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate><StackPanel Orientation="Vertical" Spacing="6"/></ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <ContentControl Content="{Binding}">
+              <ContentControl.DataTemplates>
+                <DataTemplate DataType="{x:Type vm:WavFileGenerator}"><v:WavFileGeneratorView/></DataTemplate>
+                <DataTemplate DataType="{x:Type vm:SineWaveGenerator}"><v:SineWaveGeneratorView/></DataTemplate>
+              </ContentControl.DataTemplates>
+            </ContentControl>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
       </ItemsControl>
     </Grid>
   </Border>
