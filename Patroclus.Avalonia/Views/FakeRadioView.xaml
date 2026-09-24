@@ -2,12 +2,12 @@
   <Grid RowDefinitions="Auto,*">
     <Border Background="#F8FAFC" BorderBrush="#EAECF0" BorderThickness="0,0,0,1" Padding="12">
       <ContentControl Content="{Binding}">
-        <ContentControl.DataTemplates><DataTemplate DataType="{x:Type vm:FakeHermes}"><v:FakeHermesView/></DataTemplate><DataTemplate DataType="{x:Type vm:FakeHermesNewProtocol}"><v:FakeHermesNewProtocolView/></DataTemplate></ContentControl.DataTemplates>
-      </ContentControl>
+        <ContentControl.DataTemplates><DataTemplate DataType="{x:Type vm:FakeHermes}"><v:FakeHermesView/></DataTemplate><DataTemplate DataType="{x:Type vm:FakeHermesNewProtocol}"><v:FakeHermesNewProtocolView/></DataTemplate>
+      </ContentControl.DataTemplates>
     </Border>
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-      <ItemsControl Items="{Binding Path=receivers}" Margin="12" HorizontalAlignment="Stretch">
-        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Vertical" Spacing="8"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+      <ItemsControl ItemsSource="{Binding receivers}" Margin="12" HorizontalAlignment="Stretch">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Vertical" Spacing="8"/></ItemsPanelTemplate>
         <ItemsControl.ItemTemplate><DataTemplate><v:ReceiverView/></DataTemplate></ItemsControl.ItemTemplate>
       </ItemsControl>
     </ScrollViewer>
