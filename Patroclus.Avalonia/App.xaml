@@ -1,14 +1,15 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Patroclus.Avalonia"
-             x:Class="Patroclus.Avalonia.App">
+             x:Class="Patroclus.Avalonia.App"
+             RequestedThemeVariant="Light">
   <Application.DataTemplates>
     <local:ViewLocator/>
   </Application.DataTemplates>
 
   <Application.Styles>
-    <!-- DH1KLM: Use Avalonia Fluent styling instead of the legacy Default theme. -->
-    <FluentTheme Mode="Light"/>
+    <!-- DH1KLM: Avalonia 12 selects the light Fluent variant through RequestedThemeVariant. -->
+    <FluentTheme/>
     <StyleInclude Source="avares://Patroclus.Avalonia/Styles/PatroclusStyles.xaml"/>
     <StyleInclude Source="avares://Patroclus.Avalonia/Controls/MultiSpinner.xaml"/>
   </Application.Styles>
