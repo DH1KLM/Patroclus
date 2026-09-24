@@ -23,6 +23,7 @@ namespace Patroclus.Avalonia
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
-                .UseReactiveUI();
+                //DH1KLM: Avalonia 12 ReactiveUI uses the ReactiveUIBuilder overload.
+                .UseReactiveUI(_ => { });
     }
 }
