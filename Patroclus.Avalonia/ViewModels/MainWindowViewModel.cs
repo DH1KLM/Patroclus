@@ -44,14 +44,13 @@ namespace Patroclus.Avalonia.ViewModels
                 case 1: LoadP1(HpsdrBoards.Angelia); break;
                 case 2: LoadP1(HpsdrBoards.Orion); break;
                 case 3: LoadP1(HpsdrBoards.OrionMkII); break;
-                case 4: LoadP1(HpsdrBoards.Saturn); break;
-                case 5: LoadP2(HpsdrBoards.Hermes); break;
-                case 6: LoadP2(HpsdrBoards.Angelia); break;
-                case 7: LoadP2(HpsdrBoards.Orion); break;
-                case 8: LoadP2(HpsdrBoards.OrionMkII); break;
-                case 9: LoadP2(HpsdrBoards.Saturn); break;
-                case 10: LoadP1(HpsdrBoards.HermesLite); break;
-                case 11: LoadP2(HpsdrBoards.HermesLite); break;
+                                case 4: LoadP2(HpsdrBoards.Hermes); break;
+                case 5: LoadP2(HpsdrBoards.Angelia); break;
+                case 6: LoadP2(HpsdrBoards.Orion); break;
+                case 7: LoadP2(HpsdrBoards.OrionMkII); break;
+                case 8: LoadP2(HpsdrBoards.Saturn); break;
+                case 9: LoadP1(HpsdrBoards.HermesLite); break;
+                case 10: LoadP2(HpsdrBoards.HermesLite); break;
                 default: LoadP1(HpsdrBoards.Hermes); break;
             }
         }
