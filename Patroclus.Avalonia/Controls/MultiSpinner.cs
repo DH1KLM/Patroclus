@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using System;
+using System.Linq;
 using System.Globalization;
 
 namespace Patroclus.Avalonia.Controls
