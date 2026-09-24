@@ -58,7 +58,7 @@ namespace Patroclus.Avalonia.ViewModels
         double timebase = 0.0;
         byte hermesCodeVersion = 30;
         DateTime startTime;
-        bool running = false;\n        //DH1KLM: Preserve the PTT0 bit from the client's high-priority command.\n        private bool ptt0 = false;
+        bool running = false;        //DH1KLM: Preserve the PTT0 bit from the client's high-priority command.        private bool ptt0 = false;
 
         double clk = 122880000;
         private volatile bool closing = false;
