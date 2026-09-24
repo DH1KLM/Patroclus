@@ -40,11 +40,12 @@ namespace Patroclus.Avalonia.ViewModels
         public static readonly HpsdrBoardProfile OrionMkII =
             new HpsdrBoardProfile("Orion MkII", 10, 5, true, true);
 
-        //DH1KLM: Thetis HPSDRHW.Saturn has P2 enum value 10.
-        //Thetis' P1 discovery mapper also uses wire value 10 for OrionMKII, so a
-        //Saturn P1 emulator necessarily presents the same P1 discovery byte.
+        //DH1KLM: Thetis P1 discovery byte 10 is mapped to OrionMKII.
+        //DH1KLM: Saturn is a P2 board identity (HPSDRHW value 10) and cannot be
+        //DH1KLM: uniquely represented in Thetis P1 discovery, so do not expose a
+        //DH1KLM: misleading Saturn-P1 profile.
         public static readonly HpsdrBoardProfile Saturn =
-            new HpsdrBoardProfile("Saturn", 10, 10, true, true, true);
+            new HpsdrBoardProfile("Saturn", 10, 10, false, true);
 
         public static readonly HpsdrBoardProfile HermesLite =
             new HpsdrBoardProfile("Hermes Lite", 6, 6, true, true);
