@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using System;
 using System.Linq;
 using System.Globalization;
@@ -13,42 +14,21 @@ namespace Patroclus.Avalonia.Controls
     {
         public static readonly StyledProperty<double> ValueProperty =
             AvaloniaProperty.Register<MultiSpinner, double>(
-                nameof(Value),
-                defaultValue: 0,
-                defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
+                nameof(Value), defaultValue: 0,
+                defaultBindingMode: global::Avalonia.Data.BindingMode.TwoWay);
 
         public static readonly StyledProperty<double> MaximumProperty =
-            AvaloniaProperty.Register<MultiSpinner, double>(
-                nameof(Maximum),
-                defaultValue: 100);
+            AvaloniaProperty.Register<MultiSpinner, double>(nameof(Maximum), defaultValue: 100);
 
         public static readonly StyledProperty<double> MinimumProperty =
-            AvaloniaProperty.Register<MultiSpinner, double>(
-                nameof(Minimum),
-                defaultValue: 0);
+            AvaloniaProperty.Register<MultiSpinner, double>(nameof(Minimum), defaultValue: 0);
 
         public static readonly StyledProperty<bool> SpinnerIsReadOnlyProperty =
-            AvaloniaProperty.Register<MultiSpinner, bool>(
-                nameof(SpinnerIsReadOnly),
-                defaultValue: false);
+            AvaloniaProperty.Register<MultiSpinner, bool>(nameof(SpinnerIsReadOnly), defaultValue: false);
 
-        public double Value
-        {
-            get => GetValue(ValueProperty);
-            set => SetValue(ValueProperty, value);
-        }
-
-        public double Maximum
-        {
-            get => GetValue(MaximumProperty);
-            set => SetValue(MaximumProperty, value);
-        }
-
-        public double Minimum
-        {
-            get => GetValue(MinimumProperty);
-            set => SetValue(MinimumProperty, value);
-        }
+        public double Value { get => GetValue(ValueProperty); set => SetValue(ValueProperty, value); }
+        public double Maximum { get => GetValue(MaximumProperty); set => SetValue(MaximumProperty, value); }
+        public double Minimum { get => GetValue(MinimumProperty); set => SetValue(MinimumProperty, value); }
 
         //DH1KLM: Keep the original public IsReadOnly behavior without hiding TextBox.IsReadOnly.
         public bool SpinnerIsReadOnly
@@ -64,21 +44,17 @@ namespace Patroclus.Avalonia.Controls
         {
             ValueProperty.Changed.AddClassHandler<MultiSpinner>((control, change) =>
             {
-                control.UpdateTextFromValue(change.NewValue.GetValueOrDefault<double>());
+                var value = change.NewValue is double typedValue ? typedValue : 0;
+                control.UpdateTextFromValue(value);
             });
-
-            MaximumProperty.Changed.AddClassHandler<MultiSpinner>((control, _) =>
-                control.NormalizeValueAndText());
-
-            MinimumProperty.Changed.AddClassHandler<MultiSpinner>((control, _) =>
-                control.NormalizeValueAndText());
+            MaximumProperty.Changed.AddClassHandler<MultiSpinner>((control, _) => control.NormalizeValueAndText());
+            MinimumProperty.Changed.AddClassHandler<MultiSpinner>((control, _) => control.NormalizeValueAndText());
         }
 
         public MultiSpinner()
         {
-            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
-            TextAlignment = Avalonia.Media.TextAlignment.Right;
-            //DH1KLM: TextBox remains editable so our digit handler receives text input.
+            HorizontalContentAlignment = global::Avalonia.Layout.HorizontalAlignment.Stretch;
+            TextAlignment = global::Avalonia.Media.TextAlignment.Right;
             IsReadOnly = false;
         }
 
@@ -90,12 +66,7 @@ namespace Patroclus.Avalonia.Controls
 
         protected override void OnTextInput(TextInputEventArgs e)
         {
-            if (SpinnerIsReadOnly || IsReadOnly)
-            {
-                e.Handled = true;
-                return;
-            }
-
+            if (SpinnerIsReadOnly || IsReadOnly) { e.Handled = true; return; }
             HandleDigitInput(e.Text);
             e.Handled = true;
         }
@@ -103,55 +74,19 @@ namespace Patroclus.Avalonia.Controls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             var modifiers = e.KeyModifiers;
-
             switch (e.Key)
             {
-                case Key.Up:
-                    IncrementAtCaret(1);
-                    e.Handled = true;
-                    return;
-                case Key.Down:
-                    IncrementAtCaret(-1);
-                    e.Handled = true;
-                    return;
-                case Key.Delete:
-                    SetDigitAtCaret(0);
-                    e.Handled = true;
-                    return;
+                case Key.Up: IncrementAtCaret(1); e.Handled = true; return;
+                case Key.Down: IncrementAtCaret(-1); e.Handled = true; return;
+                case Key.Delete: SetDigitAtCaret(0); e.Handled = true; return;
                 case Key.Back:
-                    if (CaretIndex > 0)
-                    {
-                        CaretIndex--;
-                        SetDigitAtCaret(0);
-                    }
-                    e.Handled = true;
-                    return;
-                case Key.Home:
-                    CaretIndex = 0;
-                    e.Handled = true;
-                    return;
-                case Key.End:
-                    CaretIndex = Text?.Length ?? 0;
-                    e.Handled = true;
-                    return;
-                case Key.C:
-                    if (modifiers == KeyModifiers.Control)
-                    {
-                        Copy();
-                        e.Handled = true;
-                        return;
-                    }
-                    break;
-                case Key.V:
-                    if (modifiers == KeyModifiers.Control)
-                    {
-                        Paste();
-                        e.Handled = true;
-                        return;
-                    }
-                    break;
+                    if (CaretIndex > 0) { CaretIndex--; SetDigitAtCaret(0); }
+                    e.Handled = true; return;
+                case Key.Home: CaretIndex = 0; e.Handled = true; return;
+                case Key.End: CaretIndex = Text?.Length ?? 0; e.Handled = true; return;
+                case Key.C when modifiers == KeyModifiers.Control: Copy(); e.Handled = true; return;
+                case Key.V when modifiers == KeyModifiers.Control: Paste(); e.Handled = true; return;
             }
-
             base.OnKeyDown(e);
         }
 
@@ -159,14 +94,9 @@ namespace Patroclus.Avalonia.Controls
         {
             _lastPoint = e.GetPosition(this);
             base.OnPointerPressed(e);
-
-            if (SpinnerIsReadOnly || !IsEffectivelyEnabled)
-                return;
-
-            if (_lastPoint.Y < Bounds.Height * 0.25)
-                IncrementAtCaret(1);
-            else if (_lastPoint.Y > Bounds.Height * 0.75)
-                IncrementAtCaret(-1);
+            if (SpinnerIsReadOnly || !IsEffectivelyEnabled) return;
+            if (_lastPoint.Y < Bounds.Height * 0.25) IncrementAtCaret(1);
+            else if (_lastPoint.Y > Bounds.Height * 0.75) IncrementAtCaret(-1);
         }
 
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
@@ -177,58 +107,41 @@ namespace Patroclus.Avalonia.Controls
                 e.Handled = true;
                 return;
             }
-
             base.OnPointerWheelChanged(e);
         }
 
         private void HandleDigitInput(string? input)
         {
-            if (string.IsNullOrEmpty(input))
-                return;
-
+            if (string.IsNullOrEmpty(input)) return;
             foreach (var character in input)
             {
-                if (character < '0' || character > '9')
-                    continue;
-
+                if (character < '0' || character > '9') continue;
                 SetDigitAtCaret(character - '0');
-                if (CaretIndex < (Text?.Length ?? 0))
-                    CaretIndex++;
+                if (CaretIndex < (Text?.Length ?? 0)) CaretIndex++;
             }
         }
 
         private void IncrementAtCaret(int direction)
         {
-            if (SpinnerIsReadOnly && !IsFocused)
-                return;
-
+            if (SpinnerIsReadOnly && !IsFocused) return;
             var textLength = Text?.Length ?? 0;
-            if (textLength == 0)
-                return;
-
+            if (textLength == 0) return;
             var index = Math.Clamp(CaretIndex, 0, textLength - 1);
-            var power = textLength - index - 1;
-            var step = Math.Pow(10, power);
+            var step = Math.Pow(10, textLength - index - 1);
             SetValueClamped(Value + direction * step);
         }
 
         private void SetDigitAtCaret(int digit)
         {
             var text = GetDisplayText();
-            if (text.Length == 0)
-                return;
-
+            if (text.Length == 0) return;
             var index = Math.Clamp(CaretIndex, 0, text.Length - 1);
-            var power = text.Length - index - 1;
-            var multiplier = Math.Pow(10, power);
+            var multiplier = Math.Pow(10, text.Length - index - 1);
             var currentDigit = (int)(Value / multiplier) % 10;
             SetValueClamped(Value + (digit - currentDigit) * multiplier);
         }
 
-        private void SetValueClamped(double value)
-        {
-            Value = Math.Clamp(value, Minimum, Maximum);
-        }
+        private void SetValueClamped(double value) => Value = Math.Clamp(value, Minimum, Maximum);
 
         private string GetDisplayText()
         {
@@ -245,26 +158,19 @@ namespace Patroclus.Avalonia.Controls
 
         private void UpdateTextFromValue(double value)
         {
-            if (_updatingText)
-                return;
-
+            if (_updatingText) return;
             try
             {
                 _updatingText = true;
                 Text = Math.Clamp(value, Minimum, Maximum)
                     .ToString(new string('0', GetPlaces()), CultureInfo.InvariantCulture);
             }
-            finally
-            {
-                _updatingText = false;
-            }
+            finally { _updatingText = false; }
         }
 
         private void NormalizeValueAndText()
         {
-            if (Maximum < Minimum)
-                return;
-
+            if (Maximum < Minimum) return;
             SetValueClamped(Value);
             UpdateTextFromValue(Value);
         }
@@ -272,16 +178,13 @@ namespace Patroclus.Avalonia.Controls
         private async void Copy()
         {
             var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
-            if (clipboard != null)
-                await clipboard.SetTextAsync(GetDisplayText());
+            if (clipboard != null) await clipboard.SetTextAsync(GetDisplayText());
         }
 
         private async void Paste()
         {
             var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
-            if (clipboard == null)
-                return;
-
+            if (clipboard == null) return;
             var text = await clipboard.TryGetTextAsync();
             if (!string.IsNullOrWhiteSpace(text))
             {
