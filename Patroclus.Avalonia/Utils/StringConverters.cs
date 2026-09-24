@@ -1,67 +1,43 @@
-﻿using System;
+using System;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;
-using Avalonia.Markup;
-using Avalonia.Utilities;
 
 namespace Patroclus
 {
-    /// <summary>
-    /// Provides a set of useful <see cref="IValueConverter"/>s for working with string values.
-    /// </summary>
     public static class StringConverters
     {
-       
-        /// <summary>
-        /// A value converter that applies Sting.Format to the input
-        /// </summary>
-       
+        //DH1KLM: Keep formatting local and independent of Avalonia internal utility types.
         public static readonly IValueConverter StringFormat =
-             new FuncValueParameterConverter<object,string,string>((x,f) => String.Format(f,x));
-
-
+            new FuncValueParameterConverter<object, object, string>(
+                (value, format) => string.Format(
+                    CultureInfo.InvariantCulture,
+                    Convert.ToString(format, CultureInfo.InvariantCulture) ?? "{0}",
+                    value));
     }
-    // Copyright (c) The Avalonia Project. All rights reserved.
-    // Licensed under the MIT license. See licence.md file in the project root for full license information.
 
-    /// <summary>
-    /// A general purpose <see cref="IValueConverter"/> that uses a <see cref="Func{T1,T2,TResult}"/>
-    /// to provide the converter logic.
-    /// </summary>
-    /// <typeparam name="TIn">The input type.</typeparam>
-    /// <typeparam name="TParam">The parameter type.</typeparam>
-    /// <typeparam name="TOut">The output type.</typeparam>
-    public class FuncValueParameterConverter<TIn, TParam, TOut> : IValueConverter
-        {
-            private readonly Func<TIn,TParam , TOut> _convert;
+    public sealed class FuncValueParameterConverter<TIn, TParam, TOut> : IValueConverter
+    {
+        private readonly Func<TIn, TParam, TOut> _convert;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FuncValueConverter{TIn, TParam, TOut}"/> class.
-        /// </summary>
-        /// <param name="convert">The convert function.</param>
         public FuncValueParameterConverter(Func<TIn, TParam, TOut> convert)
         {
-            _convert = convert;
+            _convert = convert ?? throw new ArgumentNullException(nameof(convert));
         }
 
-        /// <inheritdoc/>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is TIn || (value == null && TypeUtilities.AcceptsNull(typeof(TIn))))
+            if (value is TIn typedValue || (value == null && default(TIn) == null))
             {
-                return _convert((TIn)value,(TParam)parameter);
+                return _convert(
+                    value is TIn v ? v : default!,
+                    parameter is TParam p ? p : default!);
             }
-            else
-            {
-                return AvaloniaProperty.UnsetValue;
-            }
+
+            return AvaloniaProperty.UnsetValue;
         }
 
-        /// <inheritdoc/>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotSupportedException();
     }
 }
