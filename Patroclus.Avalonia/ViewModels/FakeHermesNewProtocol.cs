@@ -491,17 +491,18 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
             }
             else if (received[4] == 0)
             {
+                //DH1KLM: P2 CmdGeneral() defines the PC-originating ports explicitly.
                 RxSpecificPort = (received[5] << 8) + received[6];
                 TxSpecificPort = (received[7] << 8) + received[8];
-
                 HighPriorityFromPCPort = (received[9] << 8) + received[10];
-                //   if (highPriorityToPC == null) highPriorityToPC = new UdpClient(HighPriorityToPCPort);
 
+                //DH1KLM: The radio-originating Rx0 DDC port is the first DDC output port.
                 Rx0Port = (received[17] << 8) + received[18];
 
-                //   usePhaseWord = (received[37] & 8) != 0;
+                //DH1KLM: Thetis CmdGeneral() uses bit 3 of byte 37 to request phase-word
+                // frequencies. Do not force this mode; follow the client's negotiated setting.
+                usePhaseWord = (received.Length > 37) && ((received[37] & 0x08) != 0);
 
-                usePhaseWord = true;
                 ClientIpEndPoint = packet.endPoint;
 
 
