@@ -19,7 +19,7 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Restore
-        run: dotnet restore Patroclus.sln
+        run: dotnet restore patroclus.sln
 
       - name: Build Avalonia project
         run: dotnet build Patroclus.Avalonia/Patroclus.Avalonia.csproj --configuration Release --no-restore
