@@ -390,10 +390,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                 Thread.Sleep(1);
             }
         }
-        //DH1KLM: P2 high-priority packets use the full 1444-byte packet size defined by Thetis.
-        byte[] hpbuf = new byte[1444];
-
-        void sendHighPriorityToPC()
+                void sendHighPriorityToPC()
         {
             //DH1KLM: Keep the radio-to-PC high-priority packet at Thetis BUFLEN (1444 bytes).
             Array.Clear(hpbuf, 0, hpbuf.Length);
