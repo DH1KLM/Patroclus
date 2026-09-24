@@ -51,14 +51,14 @@ namespace Patroclus.Avalonia.ViewModels
         const int min24int = -0x800000;
 
 
-        byte[] databuf = new byte[1444];
+        byte[] databuf = new byte[1444];\n        //DH1KLM: P2 high-priority packets use Thetis BUFLEN.\n        byte[] hpbuf = new byte[1444];
         uint seqNo = 0;
         uint micSeqNo = 0;
 
         double timebase = 0.0;
         byte hermesCodeVersion = 30;
         DateTime startTime;
-        bool running = false;        //DH1KLM: Preserve the PTT0 bit from the client's high-priority command.        private bool ptt0 = false;
+        bool running = false;\n        //DH1KLM: Preserve the PTT0 bit from the client's high-priority command.\n        private bool ptt0 = false;
 
         double clk = 122880000;
         private volatile bool closing = false;
