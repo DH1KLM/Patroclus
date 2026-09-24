@@ -58,7 +58,7 @@ namespace Patroclus.Avalonia.ViewModels
         double timebase = 0.0;
         byte hermesCodeVersion = 30;
         DateTime startTime;
-        bool running = false;
+        bool running = false;\n        //DH1KLM: Preserve the PTT0 bit from the client's high-priority command.\n        private bool ptt0 = false;
 
         double clk = 122880000;
         private volatile bool closing = false;
@@ -386,21 +386,50 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                 Thread.Sleep(1);
             }
         }
-        byte[] hpbuf = new byte[60];
+        //DH1KLM: P2 high-priority packets use the full 1444-byte packet size defined by Thetis.\n        byte[] hpbuf = new byte[1444];
 
         void sendHighPriorityToPC()
         {
+            //DH1KLM: Keep the radio-to-PC high-priority packet at Thetis BUFLEN (1444 bytes).
+            Array.Clear(hpbuf, 0, hpbuf.Length);
+
             hpbuf[0] = (byte)(seqNo >> 24);
             hpbuf[1] = (byte)((seqNo >> 16) & 0xff);
             hpbuf[2] = (byte)((seqNo >> 8) & 0xff);
             hpbuf[3] = (byte)(seqNo & 0xff);
 
+            //DH1KLM: Thetis uses bit 1 of byte 4 for PTT0 and bit 0 for Run.
+            hpbuf[4] = (byte)((running ? 0x01 : 0x00) | (ptt0 ? 0x02 : 0x00));
+
+            //DH1KLM: Preserve the existing ADC1 clip indication used by Patroclus.
             hpbuf[5] = adc1clip ? (byte)1 : (byte)0;
 
+            //DH1KLM: RX frequency fields are four-byte big-endian values.
+            for (int i = 0; i < maxReceivers && i < 12; i++)
+            {
+                receiver rx = receiversByIdx[i];
+                if (rx == null)
+                    continue;
+
+                int offset = 9 + (i * 4);
+                int frequency = rx.vfo;
+                hpbuf[offset] = (byte)(frequency >> 24);
+                hpbuf[offset + 1] = (byte)(frequency >> 16);
+                hpbuf[offset + 2] = (byte)(frequency >> 8);
+                hpbuf[offset + 3] = (byte)frequency;
+            }
+
+            //DH1KLM: TX0 frequency is the four-byte field at offsets 329..332.
+            hpbuf[329] = (byte)(txNCO >> 24);
+            hpbuf[330] = (byte)(txNCO >> 16);
+            hpbuf[331] = (byte)(txNCO >> 8);
+            hpbuf[332] = (byte)txNCO;
+
+            //DH1KLM: ALEX fields are intentionally left at zero until Patroclus
+            // has a real ALEX state to report. Do not invent routing values.
 
             rxSpecificClient.Client.Send(hpbuf, hpbuf.Length, ClientIpEndPoint);
             seqNo++;
-
         }
         byte[] micbuf = new byte[1444];
 
@@ -600,11 +629,8 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                     status = "Off";
                 }
             }
-            bool ptt0 = ((received[4] & 0x02) != 0);
-            if (ptt0)
-            {
-                //   Console.Out.WriteLine("ptt");
-            }
+            //DH1KLM: Thetis defines bit 1 of byte 4 as PTT0.
+            ptt0 = ((received[4] & 0x02) != 0);
             int rxi = 9;
             for (int i = 0; i < maxReceivers; i++)
             {
