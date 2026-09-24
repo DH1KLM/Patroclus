@@ -73,7 +73,7 @@ namespace Patroclus.Avalonia.ViewModels
             get { return _name; }
             set { this.RaiseAndSetIfChanged(ref _name, value); }
         }
-        private int _sampleSize=24;
+        //DH1KLM: P2 Rx Specific control assigns each DDC to an ADC.\n        private int _adc;\n        public int adc\n        {\n            get { return _adc; }\n            set { this.RaiseAndSetIfChanged(ref _adc, value); }\n        }\n\n        private int _sampleSize=24;
         public int sampleSize 
         {
             get { return _sampleSize; }
