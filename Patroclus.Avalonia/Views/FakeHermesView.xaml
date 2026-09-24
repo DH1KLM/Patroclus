@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:p="clr-namespace:Patroclus;assembly=Patroclus.Avalonia" x:Class="Patroclus.Avalonia.Views.FakeHermesView">
   <StackPanel Spacing="10">
     <Border Classes="status">
-      <WrapPanel Orientation="Horizontal" ItemWidth="Auto">
+      <WrapPanel Orientation="Horizontal">
         <TextBlock Classes="section" Text="Bandwidth  "/><TextBlock Text="{Binding bandwidth}"/>
         <TextBlock Classes="section" Margin="18,0,0,0" Text="Status  "/><TextBlock Text="{Binding status}"/>
         <TextBlock Classes="section" Margin="18,0,0,0" Text="Seq. errors  "/><TextBlock Text="{Binding seqErrors}"/>
@@ -20,8 +20,8 @@
     <TextBlock Classes="section" Text="Control bytes"/>
     <Border Classes="status" Padding="8">
       <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-        <ItemsControl Items="{Binding ccbits}">
-          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl ItemsSource="{Binding ccbits}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
           <ItemsControl.ItemTemplate><DataTemplate><TextBlock Margin="4,1" Text="{Binding Converter={x:Static p:StringConverters.StringFormat},ConverterParameter=\{0:x8\}}"/></DataTemplate></ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
