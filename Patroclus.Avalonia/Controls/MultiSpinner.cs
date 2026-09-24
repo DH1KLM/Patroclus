@@ -1,483 +1,293 @@
-﻿using Avalonia.Input.Platform;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Utils;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Media;
-using Avalonia.Metadata;
-using Avalonia.Data;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using System;
+using System.Globalization;
 
 namespace Patroclus.Avalonia.Controls
-{ 
-    public class MultiSpinner : TemplatedControl
+{
+    //DH1KLM: MultiSpinner uses the public Avalonia TextBox API so it is independent
+    //DH1KLM: of Avalonia's internal text presenter implementation.
+    public class MultiSpinner : TextBox
     {
-       
-        public static readonly DirectProperty<MultiSpinner, int> CaretIndexProperty =
-            AvaloniaProperty.RegisterDirect<MultiSpinner, int>(
-                nameof(CaretIndex),
-                o => o.CaretIndex,
-                (o, v) => o.CaretIndex = v);
+        public static readonly StyledProperty<double> ValueProperty =
+            AvaloniaProperty.Register<MultiSpinner, double>(
+                nameof(Value),
+                defaultValue: 0,
+                defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
-        public static readonly StyledProperty<bool> IsReadOnlyProperty =
-            AvaloniaProperty.Register<MultiSpinner, bool>(nameof(IsReadOnly));
+        public static readonly StyledProperty<double> MaximumProperty =
+            AvaloniaProperty.Register<MultiSpinner, double>(
+                nameof(Maximum),
+                defaultValue: 100);
 
-        
-        public static readonly DirectProperty<MultiSpinner, double> ValueProperty =
-            Slider.ValueProperty.AddOwner<MultiSpinner>(
-                o => o.Value,
-                (o, v) => o.Value = v,
-                defaultBindingMode: BindingMode.TwoWay,
-                enableDataValidation: true);
+        public static readonly StyledProperty<double> MinimumProperty =
+            AvaloniaProperty.Register<MultiSpinner, double>(
+                nameof(Minimum),
+                defaultValue: 0);
 
-        public static readonly DirectProperty<MultiSpinner, double> MaximumProperty =
-            Slider.MaximumProperty.AddOwner<MultiSpinner>(
-                o => o.Maximum,
-                (o, v) => o.Maximum = v,
-                defaultBindingMode: BindingMode.TwoWay,
-                enableDataValidation: true);
+        public static readonly StyledProperty<bool> SpinnerIsReadOnlyProperty =
+            AvaloniaProperty.Register<MultiSpinner, bool>(
+                nameof(SpinnerIsReadOnly),
+                defaultValue: false);
 
-        public static readonly DirectProperty<MultiSpinner, double> MinimumProperty =
-                    Slider.MinimumProperty.AddOwner<MultiSpinner>(
-                        o => o.Minimum,
-                        (o, v) => o.Minimum = v,
-                        defaultBindingMode: BindingMode.TwoWay,
-                        enableDataValidation: true);
+        public double Value
+        {
+            get => GetValue(ValueProperty);
+            set => SetValue(ValueProperty, value);
+        }
 
-        public static readonly StyledProperty<TextAlignment> TextAlignmentProperty =
-            TextBlock.TextAlignmentProperty.AddOwner<MultiSpinner>();
+        public double Maximum
+        {
+            get => GetValue(MaximumProperty);
+            set => SetValue(MaximumProperty, value);
+        }
 
- 
-        private double _value;
-        private double _minimum;
-        private double _maximum;
+        public double Minimum
+        {
+            get => GetValue(MinimumProperty);
+            set => SetValue(MinimumProperty, value);
+        }
 
-        private int _caretIndex;
-        private NumericTextPresenter _presenter;
-        private bool _ignoreTextChanges;
-        private static readonly string[] invalidCharacters = new String[1] { "\u007f" };
+        //DH1KLM: Keep the original public IsReadOnly behavior without hiding TextBox.IsReadOnly.
+        public bool SpinnerIsReadOnly
+        {
+            get => GetValue(SpinnerIsReadOnlyProperty);
+            set => SetValue(SpinnerIsReadOnlyProperty, value);
+        }
+
+        private bool _updatingText;
+        private Point _lastPoint;
 
         static MultiSpinner()
         {
-            FocusableProperty.OverrideDefaultValue(typeof(MultiSpinner), true);   
+            ValueProperty.Changed.AddClassHandler<MultiSpinner>((control, change) =>
+            {
+                control.UpdateTextFromValue(change.NewValue.GetValueOrDefault<double>());
+            });
+
+            MaximumProperty.Changed.AddClassHandler<MultiSpinner>((control, _) =>
+                control.NormalizeValueAndText());
+
+            MinimumProperty.Changed.AddClassHandler<MultiSpinner>((control, _) =>
+                control.NormalizeValueAndText());
         }
 
         public MultiSpinner()
         {
+            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
+            TextAlignment = Avalonia.Media.TextAlignment.Right;
+            IsReadOnly = true;
         }
 
-      
-        public int CaretIndex
+        protected override void OnInitialized()
         {
-            get
-            {
-                return _caretIndex;
-            }
-
-            set
-            {
-                value = CoerceCaretIndex(value);
-                SetAndRaise(CaretIndexProperty, ref _caretIndex, value);
-            }
-        }
-
-        public bool IsReadOnly
-        {
-            get { return GetValue(IsReadOnlyProperty); }
-            set { SetValue(IsReadOnlyProperty, value); }
-        }
-          
-        [Content]
-        public double Value
-        {
-            get { return _value; }
-            set
-            {
-                if (!_ignoreTextChanges)
-                {
-                 //todo   CaretIndex = CoerceCaretIndex(CaretIndex, value?.Length ?? 0);
-                    SetAndRaise(ValueProperty, ref _value, value);
-                }
-            }
-        }
-        public Double Maximum
-        {
-            get { return _maximum; }
-            set { SetAndRaise(MaximumProperty, ref _maximum, value); }
-        }
-        public Double Minimum
-        {
-            get { return _minimum; }
-            set { SetAndRaise(MinimumProperty, ref _minimum, value); }
-        }
-
-        public TextAlignment TextAlignment
-        {
-            get { return GetValue(TextAlignmentProperty); }
-            set { SetValue(TextAlignmentProperty, value); }
-        }
-
-        
-        protected override void OnTemplateApplied(TemplateAppliedEventArgs e)
-        {
-            _presenter = e.NameScope.Get<NumericTextPresenter>("PART_TextPresenter");
-            _presenter.Cursor = new Cursor(StandardCursorType.Arrow);
-
-            if (IsFocused)
-            {
-                _presenter.ShowCaret();
-            }
-        }
-
-        protected override void OnGotFocus(GotFocusEventArgs e)
-        {
-            base.OnGotFocus(e);
-            _presenter?.ShowCaret();
-            
-        }
-
-        protected override void OnLostFocus(RoutedEventArgs e)
-        {
-            base.OnLostFocus(e);
-            
-            _presenter?.HideCaret();
+            base.OnInitialized();
+            UpdateTextFromValue(Value);
         }
 
         protected override void OnTextInput(TextInputEventArgs e)
         {
-            HandleTextInput(e.Text);
-        }
-        
-        private void HandleTextInput(string input)
-        {
-            if (!IsReadOnly)
+            if (SpinnerIsReadOnly || IsReadOnly)
             {
-                input = RemoveInvalidCharacters(input);
-                int caretIndex = CaretIndex;
-                if (!string.IsNullOrEmpty(input))
-                {
-                   caretIndex = CaretIndex;
-                    setCol(input[0] - '0');
-                    CaretIndex += input.Length;
-                }
-            }
-        }
-        void incCol(int column, int increment)
-        {
-            double newValue = Value + Math.Pow(10, places - column - 1) * increment;
-            if(newValue>=Minimum && newValue <=Maximum) SetTextInternal(newValue);
-        }
-        void setCol(int num)
-        {
-            var i = places - CaretIndex;
-            int mul = (int)Math.Pow(10, i - 1);
-            int value = (int)Value;
-            value += num * mul - value / mul % 10 * mul;
-            SetTextInternal((double)value);
-        }
-        public string RemoveInvalidCharacters(string text)
-        {
-            for (var i = 0; i < invalidCharacters.Length; i++)
-            {
-                text = text.Replace(invalidCharacters[i], string.Empty);
-            }
-            string ret = "";
-            foreach(var c in text)
-            {
-                if("01234567890".Contains(c))
-                {
-                    ret += c;
-                }
-            }
-            return ret;
-        }
-
-        private async void Copy()
-        {
-            await ((IClipboard)AvaloniaLocator.Current.GetService(typeof(IClipboard)))
-                .SetTextAsync(Value.ToString());
-        }
-
-        private async void Paste()
-        {
-            var text = await ((IClipboard)AvaloniaLocator.Current.GetService(typeof(IClipboard))).GetTextAsync();
-            if (text == null)
-            {
+                e.Handled = true;
                 return;
             }
-            HandleTextInput(text);
+
+            HandleDigitInput(e.Text);
+            e.Handled = true;
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            int caretIndex = CaretIndex;
-            bool movement = false;
-            bool handled = false;
             var modifiers = e.KeyModifiers;
 
             switch (e.Key)
             {
-                case Key.A:
-                    if (modifiers == KeyModifiers.Control)
+                case Key.Up:
+                    IncrementAtCaret(1);
+                    e.Handled = true;
+                    return;
+                case Key.Down:
+                    IncrementAtCaret(-1);
+                    e.Handled = true;
+                    return;
+                case Key.Delete:
+                    SetDigitAtCaret(0);
+                    e.Handled = true;
+                    return;
+                case Key.Back:
+                    if (CaretIndex > 0)
                     {
-                       handled = true;
+                        CaretIndex--;
+                        SetDigitAtCaret(0);
                     }
-                    break;
+                    e.Handled = true;
+                    return;
+                case Key.Home:
+                    CaretIndex = 0;
+                    e.Handled = true;
+                    return;
+                case Key.End:
+                    CaretIndex = Text?.Length ?? 0;
+                    e.Handled = true;
+                    return;
                 case Key.C:
                     if (modifiers == KeyModifiers.Control)
                     {
                         Copy();
-                        handled = true;
+                        e.Handled = true;
+                        return;
                     }
                     break;
-
-                case Key.X:
-                    if (modifiers == KeyModifiers.Control)
-                    {
-                        Copy();
-                        handled = true;
-                    }
-                    break;
-
                 case Key.V:
                     if (modifiers == KeyModifiers.Control)
                     {
                         Paste();
-                        handled = true;
-                    }
-
-                    break;
-
-                case Key.Z:
-                    if (modifiers == KeyModifiers.Control)
-                    {
-                        handled = true;
+                        e.Handled = true;
+                        return;
                     }
                     break;
-                case Key.Y:
-                    if (modifiers == KeyModifiers.Control)
-                    {
-                        handled = true;
-                    }
-                    break;
-                case Key.Left:
-                    MoveHorizontal(-1, modifiers);
-                    movement = true;
-                    break;
-
-                case Key.Right:
-                    MoveHorizontal(1, modifiers);
-                    movement = true;
-                    break;
-
-                case Key.Up:
-                    movement = MoveVertical(1, modifiers);
-                    break;
-
-                case Key.Down:
-                    movement = MoveVertical(-1, modifiers);
-                    break;
-
-                case Key.Home:
-                    MoveHome(modifiers);
-                    movement = true;
-                    break;
-
-                case Key.End:
-                    MoveEnd(modifiers);
-                    movement = true;
-                    break;
-
-                case Key.Back:
-                    setCol(0);
-                    CaretIndex -= 1;
-                    handled = true;
-                    break;
-
-                case Key.Delete:
-                    setCol(0);
-                    handled = true;
-                    break;
-
-                case Key.Enter:
-                    
-
-                    break;
-
-                case Key.Tab:
-                   
-                    base.OnKeyDown(e);
-                   
-
-                    break;
-
-                             
-
-                default:
-                    handled = false;
-                    break;
             }
-/*
-            if (movement && ((modifiers & InputModifiers.Shift) != 0))
-            {
-                
-            }
-            else if (movement)
-            {
-                
-            }
-*/
-            if (handled || movement)
-            {
-                e.Handled = true;
-            }
-            
+
+            base.OnKeyDown(e);
         }
-        private Point _lastPoint;
+
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            var point = e.GetPosition(_presenter);
-            var index = CaretIndex = _presenter.GetCaretIndex(point);
-            _lastPoint = point;
-            
-            if (point.Y < Bounds.Height * 0.25) incCol(CaretIndex, +1);
-            else if (point.Y > Bounds.Height * 0.75) incCol(CaretIndex, -1);
+            _lastPoint = e.GetPosition(this);
+            base.OnPointerPressed(e);
 
-            e.Pointer.Capture(_presenter);
-            e.Handled = true;
+            if (SpinnerIsReadOnly || !IsEffectivelyEnabled)
+                return;
+
+            if (_lastPoint.Y < Bounds.Height * 0.25)
+                IncrementAtCaret(1);
+            else if (_lastPoint.Y > Bounds.Height * 0.75)
+                IncrementAtCaret(-1);
         }
 
-        protected override void OnPointerMoved(PointerEventArgs e)
-        {
-            if (_presenter != null && e.Pointer.Captured == _presenter)
-            {
-                int sensitivity = 8;
-                var point = e.GetPosition(_presenter);
-                //  CaretIndex =  _presenter.GetCaretIndex(point);
-                if (Math.Abs(point.Y - _lastPoint.Y) >= sensitivity)
-                {
-                    incCol(CaretIndex, -(int)(point.Y - _lastPoint.Y) / sensitivity);
-                    _lastPoint = point;
-                }
-            }
-        }
-
-        protected override void OnPointerReleased(PointerReleasedEventArgs e)
-        {
-            if (_presenter != null && e.Pointer.Captured == _presenter)
-            {
-                var point = e.GetPosition(_presenter);
-            //    if (point == _lastPoint)
-            //    {
-            //        if (point.Y < Bounds.Height * 0.25) incCol(CaretIndex, +1);
-            //        else if (point.Y > Bounds.Height * 0.75) incCol(CaretIndex, -1);
-            //    }
-                e.Pointer.Capture(null);
-            }
-        }
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            if (_presenter != null)
+            if (!SpinnerIsReadOnly && IsEffectivelyEnabled)
             {
-                var point = e.GetPosition(_presenter);
-                var caretIndex = _presenter.GetCaretIndex(point);
-                incCol(caretIndex, (int)e.Delta.Y);
+                IncrementAtCaret(Math.Sign(e.Delta.Y));
                 e.Handled = true;
-            }
-        }
-/*
-        protected override void UpdateDataValidation(AvaloniaProperty property, BindingNotification status)
-        {
-            if (property == ValueProperty)
-            {
-                DataValidationErrors.SetError(this, status.Error);
-            }
-        }
-*/
-        private int CoerceCaretIndex(int value) => CoerceCaretIndex(value, places-1);
-
-        private int CoerceCaretIndex(int value, int length)
-        {
-            if (value < 0)
-            {
-                return 0;
-            }
-            else if (value > length)
-            {
-                return length;
-            }       
-            else
-            {
-                return value;
-            }
-        }
-
-        private int DeleteCharacter(int index)
-        {
-            //todo
-            return 0;
-        }
-        private int places
-        {
-            get
-            {
-                return 1 + (int)Math.Log10(Maximum);
-            }
-        }
-        private void MoveHorizontal(int direction, KeyModifiers modifiers)
-        {
-            var caretIndex = CaretIndex;
-
-            var index = caretIndex + direction;
-
-            if (index < 0 || index > places)
-            {
                 return;
             }
-                
-            CaretIndex = index;
-            return;                
+
+            base.OnPointerWheelChanged(e);
         }
 
-        private bool MoveVertical(int count, KeyModifiers modifiers)
+        private void HandleDigitInput(string? input)
         {
-            incCol(_caretIndex, count);
+            if (string.IsNullOrEmpty(input))
+                return;
 
-            return true;
+            foreach (var character in input)
+            {
+                if (character < '0' || character > '9')
+                    continue;
+
+                SetDigitAtCaret(character - '0');
+                if (CaretIndex < (Text?.Length ?? 0))
+                    CaretIndex++;
+            }
         }
 
-        private void MoveHome(KeyModifiers modifiers)
+        private void IncrementAtCaret(int direction)
         {
-            
-            int caretIndex = 0;
-            
-            CaretIndex = caretIndex;
+            if (SpinnerIsReadOnly && !IsFocused)
+                return;
+
+            var textLength = Text?.Length ?? 0;
+            if (textLength == 0)
+                return;
+
+            var index = Math.Clamp(CaretIndex, 0, textLength - 1);
+            var power = textLength - index - 1;
+            var step = Math.Pow(10, power);
+            SetValueClamped(Value + direction * step);
         }
 
-        private void MoveEnd(KeyModifiers modifiers)
+        private void SetDigitAtCaret(int digit)
         {
-            CaretIndex = places-1;
-        }     
-        
-        private void SetTextInternal(double value)
+            var text = GetDisplayText();
+            if (text.Length == 0)
+                return;
+
+            var index = Math.Clamp(CaretIndex, 0, text.Length - 1);
+            var power = text.Length - index - 1;
+            var multiplier = Math.Pow(10, power);
+            var currentDigit = (int)(Value / multiplier) % 10;
+            SetValueClamped(Value + (digit - currentDigit) * multiplier);
+        }
+
+        private void SetValueClamped(double value)
         {
+            Value = Math.Clamp(value, Minimum, Maximum);
+        }
+
+        private string GetDisplayText()
+        {
+            var places = GetPlaces();
+            var integer = Math.Max(0, (long)Math.Round(Value));
+            return integer.ToString(new string('0', places), CultureInfo.InvariantCulture);
+        }
+
+        private int GetPlaces()
+        {
+            var maximum = Math.Max(1, Math.Abs(Maximum));
+            return Math.Max(1, (int)Math.Floor(Math.Log10(maximum)) + 1);
+        }
+
+        private void UpdateTextFromValue(double value)
+        {
+            if (_updatingText)
+                return;
+
             try
             {
-                _ignoreTextChanges = true;
-                SetAndRaise(ValueProperty, ref _value, value);
+                _updatingText = true;
+                Text = Math.Clamp(value, Minimum, Maximum)
+                    .ToString(new string('0', GetPlaces()), CultureInfo.InvariantCulture);
             }
             finally
             {
-                _ignoreTextChanges = false;
+                _updatingText = false;
             }
         }
 
+        private void NormalizeValueAndText()
+        {
+            if (Maximum < Minimum)
+                return;
+
+            SetValueClamped(Value);
+            UpdateTextFromValue(Value);
+        }
+
+        private async void Copy()
+        {
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+            if (clipboard != null)
+                await clipboard.SetTextAsync(GetDisplayText());
+        }
+
+        private async void Paste()
+        {
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+            if (clipboard == null)
+                return;
+
+            var text = await clipboard.GetTextAsync();
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                var digits = new string(text.Where(char.IsDigit).ToArray());
+                if (double.TryParse(digits, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+                    SetValueClamped(value);
+            }
+        }
     }
-    
 }
