@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -112,22 +113,28 @@ namespace Patroclus.Avalonia.ViewModels
         {
             get { return _SelectFileCommand ?? (_SelectFileCommand = new RelayCommand(param => this.SelectFileAsync((Window)param))); }
         }
-        public async void SelectFileAsync( Window parent)
+        public async void SelectFileAsync(Window parent)
         {
-            OpenFileDialog of = new OpenFileDialog();
-            //of.DefaultExt = ".wav";
-            // of.Filters = { "Wav files|*.wav"};
-
-            string[] files= await of.ShowAsync(parent);
-            if(files?.Length>0)
+            //DH1KLM: Avalonia 12 uses StorageProvider instead of the removed OpenFileDialog API.
+            var provider = parent.StorageProvider;
+            var files = await provider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                filename = files[0];
-            }
+                Title = "Open WAV file",
+                AllowMultiple = false,
+                FileTypeFilter = new[]
+                {
+                    new FilePickerFileType("WAV audio")
+                    {
+                        Patterns = new[] { "*.wav", "*.WAV" }
+                    },
+                    FilePickerFileTypes.All
+                }
+            });
 
-            //if (of.ShowDialog().Value)
-           // {
-           //     filename = of.FileName;
-           // }
+            if (files.Count > 0)
+            {
+                filename = files[0].TryGetLocalPath();
+            }
         }
 
         private string _filename;
