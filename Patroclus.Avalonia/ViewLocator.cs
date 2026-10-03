@@ -11,7 +11,8 @@ namespace Patroclus.Avalonia
 
         public Control Build(object? data)
         {
-            if (data is null) return new TextBlock { Text = "Not Found" };\n            var name = data.GetType().FullName!.Replace("ViewModel", "View");
+            if (data is null) return new TextBlock { Text = "Not Found" };
+            var name = data.GetType().FullName!.Replace("ViewModel", "View");
             var type = Type.GetType(name);
 
             if (type != null)
