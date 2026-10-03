@@ -135,7 +135,7 @@ namespace Patroclus.Avalonia.Controls
             }
         }
 
-        protected override void OnGotFocus(GotFocusEventArgs e)
+        protected override void OnGotFocus(FocusChangedEventArgs e)
         {
             base.OnGotFocus(e);
             _presenter?.ShowCaret();
