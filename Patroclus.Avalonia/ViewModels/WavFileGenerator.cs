@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -114,14 +115,22 @@ namespace Patroclus.Avalonia.ViewModels
         }
         public async void SelectFileAsync( Window parent)
         {
-            OpenFileDialog of = new OpenFileDialog();
-            //of.DefaultExt = ".wav";
-            // of.Filters = { "Wav files|*.wav"};
-
-            string[] files= await of.ShowAsync(parent);
-            if(files?.Length>0)
+            var files = await parent.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                filename = files[0];
+                AllowMultiple = false,
+                Title = "Select WAV file",
+                FileTypeFilter = new[]
+                {
+                    new FilePickerFileType("WAV files")
+                    {
+                        Patterns = new[] { "*.wav", "*.WAV" }
+                    }
+                }
+            });
+
+            if (files.Count > 0)
+            {
+                filename = files[0].Path.LocalPath;
             }
 
             //if (of.ShowDialog().Value)
