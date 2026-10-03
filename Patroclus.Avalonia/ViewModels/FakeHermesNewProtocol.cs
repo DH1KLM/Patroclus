@@ -205,6 +205,9 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
             set { this.RaiseAndSetIfChanged(ref _packetsSent, value); }
         }
         private int _packetsReceived = 0;
+
+        //DH1KLM: Temporary P2 RX diagnostics. No protocol behaviour is changed.
+        private long _p2RxDiagSent;
         public int packetsReceived
         {
             get { return _packetsReceived; }
@@ -359,7 +362,13 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
 
 
                                 rx.GenerateSignal(databuf, 16, 6, nSamples, rx.timebase, timeStep);
-                                rxClients[rx].Send(databuf, databuf.Length, ClientIpEndPoint);
+                                var rxSocket = rxClients[rx];
+                                if (rx.packetCount == 0)
+                                {
+                                    Console.WriteLine($"P2 RX FIRST: ddc={(Array.IndexOf(receiversByIdx, rx))} local={rxSocket.Client.LocalEndPoint} -> {ClientIpEndPoint} len={databuf.Length} bw={rx.bandwidth} samples={nSamples}");
+                                }
+                                rxSocket.Send(databuf, databuf.Length, ClientIpEndPoint);
+                                _p2RxDiagSent++;
                                 rx.packetCount++;
                                 packetsSent++;
                                 rx.timebase += nSamples * timeStep;
@@ -503,6 +512,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
 
                 usePhaseWord = true;
                 ClientIpEndPoint = packet.endPoint;
+                Console.WriteLine($"P2 GENERAL: radio endpoint={ClientIpEndPoint} localRxSpecific={rxSpecificClient.Client.LocalEndPoint} localGeneral={generalClient.Client.LocalEndPoint}");
 
 
             }
@@ -540,6 +550,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                                     receivers.Add(receiversByIdx[idx]);
                                 }));
                             rxClients.Add(receiversByIdx[idx], new UdpClient(Rx0Port + idx));
+                    Console.WriteLine($"P2 CMD_RX: ddc={idx} rx={logicalRx} sourcePort={Rx0Port + idx} local={rxClients[receiversByIdx[idx]].Client.LocalEndPoint} client={ClientIpEndPoint}");
                         }
                     }
                     else
@@ -598,6 +609,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                     resetTransmission();
                     running = true;
                     status = "Running";
+                    Console.WriteLine($"P2 RUN=1: client={ClientIpEndPoint}");
                 }
                 else
                 {
