@@ -466,11 +466,17 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                 response[9] = 0x00;
                 response[10] = 0x01;
 
-                //DH1KLM: Protocol 2 discovery board code for Orion-MKII. Verified against Thetis and hpsdr-emu.\n                response[11] = 0x05;//board type
-                response[12] = 23;//code version
+                //DH1KLM: Protocol 2 discovery board code for Orion-MKII. Verified against Thetis and hpsdr-emu.
+                response[11] = 0x05;//board type
 
-                //DH1KLM: Orion-MKII supports up to 8 Protocol 2 DDCs.\n                response[20] = 8;
-                response[21] = 1;
+                //DH1KLM: Protocol 2 discovery supported-version field.
+                response[12] = 0x01;
+
+                //DH1KLM: Firmware/code version reported by the virtual radio.
+                response[13] = 23;
+
+                //DH1KLM: Orion-MKII supports up to 8 Protocol 2 DDCs.
+                response[20] = 8;
 
                 status = "Discovered";
                 seqNo = 1;
@@ -604,7 +610,6 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                     if (usePhaseWord)
                     {
                         //phase_word[31:0] = 2^32 * frequency(Hz)/DSP clock frequency (Hz) 
-
                         int phaseword = (((int)received[rxi]) << 24) + (((int)received[rxi + 1]) << 16) + (((int)received[rxi + 2]) << 8) + (int)received[rxi + 3];
 
                         receiversByIdx[i].vfo = (int)(phaseword * clk / 4294967296.0);
