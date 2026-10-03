@@ -529,7 +529,13 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                         nReceivers++;
                         if (receiversByIdx[idx] == null)
                         {
-                            receiversByIdx[idx] = new receiver("RX" + idx);
+                            //DH1KLM: Keep the physical DDC index separate from the logical RX number.
+                            // Orion-MKII uses DDC2/DDC3 for logical RX1/RX2.
+                            int logicalRx = idx;
+                            if (idx == 2) logicalRx = 1;
+                            else if (idx == 3) logicalRx = 2;
+
+                            receiversByIdx[idx] = new receiver("RX" + logicalRx);
                             Dispatcher.UIThread.InvokeAsync(new Action(() => {
                                     receivers.Add(receiversByIdx[idx]);
                                 }));
