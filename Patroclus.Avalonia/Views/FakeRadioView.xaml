@@ -20,7 +20,7 @@
           </ContentControl>
       </Grid>
      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" >
-      <ItemsControl   Items="{Binding Path=receivers}" HorizontalAlignment="Left"  Margin="0,1,0,0" VerticalAlignment="Top" >
+      <ItemsControl   ItemsSource="{Binding Path=receivers}" HorizontalAlignment="Left"  Margin="0,1,0,0" VerticalAlignment="Top" >
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <StackPanel Orientation="Vertical" Margin="0,1,0,1"  />
