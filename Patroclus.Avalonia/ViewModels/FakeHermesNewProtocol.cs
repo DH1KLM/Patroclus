@@ -525,6 +525,10 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
             int nReceivers = 0;
             byte[] received = packet.received;
 
+            //DH1KLM: Log every Protocol-2 CmdRx packet before interpreting the DDC enable mask.
+            // This distinguishes "CmdRx never arrived" from "CmdRx arrived with no DDC enabled".
+            Console.WriteLine($"P2 CMD_RX PACKET: from={packet.endPoint} len={received.Length} adc={received[4]} ddcMask=0x{received[7]:X2} ddc2cfg={received[29]:X2} {received[30]:X2} {received[31]:X2} {received[34]:X2} ddc3cfg={received[35]:X2} {received[36]:X2} {received[37]:X2} {received[40]:X2} byte1363=0x{received[1363]:X2}");
+
             int adcs = received[4];
 
 
