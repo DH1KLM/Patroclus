@@ -16,7 +16,7 @@
     <Button  Margin="4,0,2,0" VerticalAlignment="Top" ToolTip.Tip="Add wav file generator" Command="{Binding AddWavCommand}">
       <TextBlock FontFamily="Segoe UI Symbol" Text="&#x1f4bf;"></TextBlock>
     </Button>
-    <ItemsControl Items="{Binding Path=generators}" HorizontalAlignment="Left" VerticalAlignment="Top" >
+    <ItemsControl ItemsSource="{Binding Path=generators}" HorizontalAlignment="Left" VerticalAlignment="Top" >
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <StackPanel Orientation="Vertical" Background="White" />
