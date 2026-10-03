@@ -512,7 +512,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
 
                 usePhaseWord = true;
                 ClientIpEndPoint = packet.endPoint;
-                Console.WriteLine($"P2 GENERAL: radio endpoint={ClientIpEndPoint} localRxSpecific={rxSpecificClient.Client.LocalEndPoint} localGeneral={generalClient.Client.LocalEndPoint}");
+                Console.WriteLine($"P2 GENERAL: radio endpoint={ClientIpEndPoint} localRxSpecific={rxSpecificClient.Client.Client.LocalEndPoint} localGeneral={generalClient.Client.Client.LocalEndPoint}");
 
 
             }
