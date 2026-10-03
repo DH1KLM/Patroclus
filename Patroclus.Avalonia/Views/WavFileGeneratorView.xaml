@@ -1,18 +1,9 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Patroclus.Avalonia.Views.WavFileGeneratorView">
-  <StackPanel Orientation="Horizontal" Background="AliceBlue" Margin="1,1,1,1" Spacing="6">
-    <TextBlock Text="Amplitude" HorizontalAlignment="Left"  VerticalAlignment="Top" />
-    <Slider  Width="100" Orientation="Horizontal" HorizontalAlignment="Left"
-      Value="{Binding Path=amplitude, Mode=TwoWay}" Minimum="-200" Maximum="0"
-      SmallChange="1" LargeChange="10"
-      TickFrequency="10" />
-    <TextBlock Text="{Binding Path=amplitude}" HorizontalAlignment="Left"  VerticalAlignment="Top"  MinWidth="30" />
-
-    <TextBlock Text="Wav File"  HorizontalAlignment="Left"  VerticalAlignment="Top" />
-    <Button Command="{Binding SelectFileCommand}" CommandParameter="{Binding $parent[Window]}" ToolTip.Tip="Open .wav File" VerticalAlignment="Center" >
-      <TextBlock FontFamily="Segoe UI Symbol" Text="&#xe101;"></TextBlock>
-    </Button>
-
-  </StackPanel>
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Patroclus.Avalonia.Views.WavFileGeneratorView">
+  <Border Background="#F8FAFC" BorderBrush="#EAECF0" BorderThickness="1" CornerRadius="6" Padding="10">
+    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+      <TextBlock Grid.Column="0" Text="Amplitude" VerticalAlignment="Center"/>
+      <Slider Grid.Column="1" Value="{Binding amplitude, Mode=TwoWay}" Minimum="-200" Maximum="0" SmallChange="1" LargeChange="10" TickFrequency="10"/>
+      <Button Grid.Column="2" Command="{Binding SelectFileCommand}" CommandParameter="{Binding $parent[Window]}" ToolTip.Tip="Open .wav File"><TextBlock Text="Open WAV"/></Button>
+    </Grid>
+  </Border>
 </UserControl>
