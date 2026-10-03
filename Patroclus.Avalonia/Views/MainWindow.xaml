@@ -18,12 +18,12 @@
     <StackPanel DockPanel.Dock="Top">
       <StackPanel Orientation="Horizontal" Spacing="10">
         <TextBlock Text="Radio:" />
-        <DropDown SelectedIndex="{Binding radioType, Mode=TwoWay}"  >
-          <DropDownItem>HPSDR Hermes</DropDownItem>
+        <ComboBox SelectedIndex="{Binding radioType, Mode=TwoWay}"  >
+          <ComboBoxItem>HPSDR Hermes</ComboBoxItem>
           <DropDownItem>Orion-MKII (HPSDR Protocol 2)</DropDownItem>
           <DropDownItem>Hermes Lite</DropDownItem>
           <DropDownItem>Hermes Lite 2</DropDownItem>
-        </DropDown>
+        </ComboBox>
       </StackPanel>
        
     </StackPanel>
