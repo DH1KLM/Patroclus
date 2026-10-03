@@ -466,10 +466,10 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                 response[9] = 0x00;
                 response[10] = 0x01;
 
-                //DH1KLM: Protocol 2 discovery board code for Orion-MKII. Verified against Thetis and hpsdr-emu.\n                response[11] = 0x05;//board type
+                response[11] = 0x02;//board type
                 response[12] = 23;//code version
 
-                //DH1KLM: Orion-MKII supports up to 8 Protocol 2 DDCs.\n                response[20] = 8;
+                response[20] = 7;
                 response[21] = 1;
 
                 status = "Discovered";
