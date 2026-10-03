@@ -6,7 +6,7 @@
 >
   <StackPanel Orientation="Vertical">
 
-    <ItemsControl  Items="{Binding Path=ccbits}" HorizontalAlignment="Stretch"  Margin="0,1,0,0" VerticalAlignment="Top" >
+    <ItemsControl  ItemsSource="{Binding Path=ccbits}" HorizontalAlignment="Stretch"  Margin="0,1,0,0" VerticalAlignment="Top" >
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel Orientation="Horizontal" />
