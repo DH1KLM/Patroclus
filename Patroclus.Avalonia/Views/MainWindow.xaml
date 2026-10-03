@@ -20,9 +20,9 @@
         <TextBlock Text="Radio:" />
         <ComboBox SelectedIndex="{Binding radioType, Mode=TwoWay}"  >
           <ComboBoxItem>HPSDR Hermes</ComboBoxItem>
-          <DropDownItem>Orion-MKII (HPSDR Protocol 2)</DropDownItem>
-          <DropDownItem>Hermes Lite</DropDownItem>
-          <DropDownItem>Hermes Lite 2</DropDownItem>
+          <ComboBoxItem>Orion-MKII (HPSDR Protocol 2)</ComboBoxItem>
+          <ComboBoxItem>Hermes Lite</ComboBoxItem>
+          <ComboBoxItem>Hermes Lite 2</ComboBoxItem>
         </ComboBox>
       </StackPanel>
        
