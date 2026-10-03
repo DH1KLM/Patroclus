@@ -17,7 +17,10 @@ namespace Patroclus.Avalonia.Controls
     public class NumericTextPresenter:Control
     {
         public static readonly DirectProperty<NumericTextPresenter, int> CaretIndexProperty =
-           TextBox.CaretIndexProperty.AddOwner<NumericTextPresenter>();
+            AvaloniaProperty.RegisterDirect<NumericTextPresenter, int>(
+                nameof(CaretIndex),
+                o => o.CaretIndex,
+                (o, v) => o.CaretIndex = v);
 
         public static readonly DirectProperty<NumericTextPresenter, double> ValueProperty =
             AvaloniaProperty.RegisterDirect<NumericTextPresenter, double>(
@@ -144,7 +147,7 @@ namespace Patroclus.Avalonia.Controls
             bool leadingZero = true;
             for(int i=0;i<FormattedText.Length;i++)
             {
-                if (!_formattedIsComma[i] && !FormattedText[i].BuildHighlightGeometry(new Point(0, 0), 0, 1).Bounds.IsEmpty)
+                if (!_formattedIsComma[i])
                 {
                     // The legacy Text property is no longer exposed by Avalonia 12.
                     // Determine leading zero state from the generated numeric value instead.
