@@ -126,7 +126,7 @@ namespace Patroclus.Avalonia.Controls
         
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            _presenter = e.NameScope.Get<NumericTextPresenter>("PART_TextPresenter");
+            base.OnApplyTemplate(e);\n            _presenter = e.NameScope.Get<NumericTextPresenter>("PART_TextPresenter");
             _presenter.Cursor = new Cursor(StandardCursorType.Arrow);
 
             if (IsFocused)
