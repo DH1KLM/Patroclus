@@ -53,6 +53,8 @@ namespace Patroclus.Avalonia.ViewModels
         byte hermesCodeVersion = 30;
         DateTime startTime;
         bool running = false;
+        //DH1KLM: Protocol 2 high-priority status is sent to the host at 10 Hz.
+        DateTime nextHighPriorityStatus = DateTime.MinValue;
 
         double clk = 122880000;
         private volatile bool closing = false;
@@ -632,6 +634,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
         void resetTransmission()
         {
             startTime = DateTime.Now;
+            nextHighPriorityStatus = startTime;
             actualPacketCount = 0;
             micSeqNo = 0;
             foreach (receiver rx in receivers)
