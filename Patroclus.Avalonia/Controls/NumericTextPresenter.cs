@@ -4,6 +4,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Data;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
+using System.Globalization;
 using Avalonia.Metadata;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,7 @@ namespace Patroclus.Avalonia.Controls
     public class NumericTextPresenter:Control
     {
         public static readonly DirectProperty<NumericTextPresenter, int> CaretIndexProperty =
-           TextBox.CaretIndexProperty.AddOwner<NumericTextPresenter>(
-               o => o.CaretIndex,
-               (o, v) => o.CaretIndex = v);
+           TextBox.CaretIndexProperty.AddOwner<NumericTextPresenter>();
 
         public static readonly DirectProperty<NumericTextPresenter, double> ValueProperty =
             AvaloniaProperty.RegisterDirect<NumericTextPresenter, double>(
@@ -199,7 +198,7 @@ namespace Patroclus.Avalonia.Controls
                 TextWrapping = TextWrapping,
             };
 
-            _charWidth = measure.Bounds.Width;//   Measure().Width;
+            _charWidth = measure.Width;//   Measure().Width;
             measure.Text = ",";
             _commaWidth = measure.Bounds.Width*0.5;// Measure().Width;
             
@@ -218,26 +217,10 @@ namespace Patroclus.Avalonia.Controls
                 }
                 string c = numbers[value];// value.ToString();
 
-                text[column++] = new FormattedText
-                {
-                    Constraint = constraint,
-                    Typeface = typeface,
-                    Text = c,
-                    FontSize = FontSize,
-                    TextAlignment = TextAlignment,
-                    TextWrapping = TextWrapping,
-                };
+                text[column++] = new FormattedText(c, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground);
                 if (place % 3 == 0 && place > 0)
                 {
-                    text[column++] = new FormattedText
-                    {
-                        Constraint = constraint,
-                        Typeface = typeface,
-                        Text = ",",
-                        FontSize = FontSize,
-                        TextAlignment = TextAlignment,
-                        TextWrapping = TextWrapping,
-                    };
+                    text[column++] = new FormattedText(",", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground);
                 }
                 place--;
             }
@@ -254,7 +237,7 @@ namespace Patroclus.Avalonia.Controls
         /// Defines the <see cref="FontFamily"/> property.
         /// </summary>
   
-        public static readonly AttachedProperty<FontFamily> FontFamilyProperty =
+        public static readonly StyledProperty<FontFamily> FontFamilyProperty =
             TextBlock.FontFamilyProperty.AddOwner<NumericTextPresenter>();
      
         /// <summary>
@@ -385,7 +368,7 @@ namespace Patroclus.Avalonia.Controls
             {
                 if (_formattedText == null)
                 {
-                    _formattedText = CreateFormattedText(Size.Empty);
+                    _formattedText = CreateFormattedText(default);
                 }
 
                 return _formattedText;
@@ -542,7 +525,7 @@ namespace Patroclus.Avalonia.Controls
         {
             var formattedText = FormattedText;
 
-            return new Size(places * _charWidth + (places / 3 - 1) + _commaWidth, formattedText[0].Bounds.Height);// Measure().Height);
+            return new Size(places * _charWidth + (places / 3 - 1) + _commaWidth, formattedText[0].Height);// Measure().Height);
 
            // return new Size();
         }
