@@ -30,28 +30,22 @@ namespace Patroclus.Avalonia.Controls
 
         
         public static readonly DirectProperty<MultiSpinner, double> ValueProperty =
-            Slider.ValueProperty.AddOwner<MultiSpinner>(
+            AvaloniaProperty.RegisterDirect<MultiSpinner, double>(
+                nameof(Value),
                 o => o.Value,
-                (o, v) => o.Value = v,
-                default,
-                BindingMode.TwoWay,
-                true);
+                (o, v) => o.Value = v);
 
         public static readonly DirectProperty<MultiSpinner, double> MaximumProperty =
-            Slider.MaximumProperty.AddOwner<MultiSpinner>(
+            AvaloniaProperty.RegisterDirect<MultiSpinner, double>(
+                nameof(Maximum),
                 o => o.Maximum,
-                (o, v) => o.Maximum = v,
-                default,
-                BindingMode.TwoWay,
-                true);
+                (o, v) => o.Maximum = v);
 
         public static readonly DirectProperty<MultiSpinner, double> MinimumProperty =
-                    Slider.MinimumProperty.AddOwner<MultiSpinner>(
-                        o => o.Minimum,
-                        (o, v) => o.Minimum = v,
-                        default,
-                        BindingMode.TwoWay,
-                        true);
+            AvaloniaProperty.RegisterDirect<MultiSpinner, double>(
+                nameof(Minimum),
+                o => o.Minimum,
+                (o, v) => o.Minimum = v);
 
         public static readonly StyledProperty<TextAlignment> TextAlignmentProperty =
             TextBlock.TextAlignmentProperty.AddOwner<MultiSpinner>();
