@@ -33,22 +33,25 @@ namespace Patroclus.Avalonia.Controls
             Slider.ValueProperty.AddOwner<MultiSpinner>(
                 o => o.Value,
                 (o, v) => o.Value = v,
-                defaultBindingMode: BindingMode.TwoWay,
-                enableDataValidation: true);
+                default,
+                BindingMode.TwoWay,
+                true);
 
         public static readonly DirectProperty<MultiSpinner, double> MaximumProperty =
             Slider.MaximumProperty.AddOwner<MultiSpinner>(
                 o => o.Maximum,
                 (o, v) => o.Maximum = v,
-                defaultBindingMode: BindingMode.TwoWay,
-                enableDataValidation: true);
+                default,
+                BindingMode.TwoWay,
+                true);
 
         public static readonly DirectProperty<MultiSpinner, double> MinimumProperty =
                     Slider.MinimumProperty.AddOwner<MultiSpinner>(
                         o => o.Minimum,
                         (o, v) => o.Minimum = v,
-                        defaultBindingMode: BindingMode.TwoWay,
-                        enableDataValidation: true);
+                        default,
+                        BindingMode.TwoWay,
+                        true);
 
         public static readonly StyledProperty<TextAlignment> TextAlignmentProperty =
             TextBlock.TextAlignmentProperty.AddOwner<MultiSpinner>();
@@ -201,13 +204,14 @@ namespace Patroclus.Avalonia.Controls
 
         private async void Copy()
         {
-            await ((IClipboard)AvaloniaLocator.Current.GetService(typeof(IClipboard)))
-                .SetTextAsync(Value.ToString());
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+            if (clipboard is not null)
+                await clipboard.SetTextAsync(Value.ToString());
         }
 
         private async void Paste()
         {
-            var text = await ((IClipboard)AvaloniaLocator.Current.GetService(typeof(IClipboard))).GetTextAsync();
+            var text = await TopLevel.GetTopLevel(this)?.Clipboard?.TryGetTextAsync();
             if (text == null)
             {
                 return;
