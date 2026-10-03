@@ -1,13 +1,16 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Patroclus.Avalonia"
-             x:Class="Patroclus.Avalonia.App">
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
+             x:Class="Patroclus.Avalonia.App"
+             RequestedThemeVariant="Light">
+  <Application.DataTemplates>
+    <local:ViewLocator/>
+  </Application.DataTemplates>
 
-    <Application.Styles>
-      <FluentTheme />
-      <StyleInclude Source="avares://Patroclus.Avalonia/Controls/MultiSpinner.xaml"/>
-    </Application.Styles>
+  <Application.Styles>
+    <!--DH1KLM: Use the light Fluent variant and the shared Patroclus UI styles.-->
+    <FluentTheme/>
+    <StyleInclude Source="avares://Patroclus.Avalonia/Styles/PatroclusStyles.xaml"/>
+    <StyleInclude Source="avares://Patroclus.Avalonia/Controls/MultiSpinner.xaml"/>
+  </Application.Styles>
 </Application>
