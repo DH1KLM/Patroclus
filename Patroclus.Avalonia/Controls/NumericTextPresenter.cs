@@ -144,16 +144,28 @@ namespace Patroclus.Avalonia.Controls
             bool leadingZero = true;
             for(int i=0;i<FormattedText.Length;i++)
             {
-                if (leadingZero && FormattedText[i].Text != "0" && FormattedText[i].Text != ",") leadingZero = false;
-                
-                if (FormattedText[i].Text == ",")
+                if (!_formattedIsComma[i] && !FormattedText[i].BuildHighlightGeometry(new Point(0, 0), 0, 1).Bounds.IsEmpty)
                 {
-                    context.DrawText(leadingZero ? Brushes.Gray : Foreground, new Point(xt-_commaWidth/2, 0), FormattedText[i]);
+                    // The legacy Text property is no longer exposed by Avalonia 12.
+                    // Determine leading zero state from the generated numeric value instead.
+                    int digitPosition = 0;
+                    for (int j = 0; j < i; j++) if (!_formattedIsComma[j]) digitPosition++;
+                    int place = places - 1 - digitPosition;
+                    long mul = (long)Math.Pow(10, place);
+                    long digit = ((long)Value / mul) % 10;
+                    if (digit != 0) leadingZero = false;
+                }
+
+                var brush = leadingZero ? Brushes.Gray : Foreground;
+                FormattedText[i].SetForegroundBrush(brush);
+                if (_formattedIsComma[i])
+                {
+                    context.DrawText(FormattedText[i], new Point(xt-_commaWidth/2, 0));
                     xt += _commaWidth;
                 }
                 else
                 {
-                    context.DrawText(leadingZero ? Brushes.Gray : Foreground, new Point(xt, 0), FormattedText[i]);
+                    context.DrawText(FormattedText[i], new Point(xt, 0));
                     xt += _charWidth;
                 }
             }
@@ -161,7 +173,7 @@ namespace Patroclus.Avalonia.Controls
             if (_caretBlink)
             {
 
-                var s = FormattedText[0].Bounds;//.Measure();
+                var s = new Rect(0, 0, FormattedText[0].Width, FormattedText[0].Height);
                 //places -_caretIndex
                 
 
@@ -188,21 +200,26 @@ namespace Patroclus.Avalonia.Controls
         {
 
             var typeface = new Typeface(FontFamily, FontStyle, FontWeight);
-            FormattedText measure = new FormattedText
-            {
-                Constraint = constraint,
-                Typeface = typeface,
-                Text = "8",
-                TextAlignment = TextAlignment,
-                FontSize = FontSize,
-                TextWrapping = TextWrapping,
-            };
+            FormattedText measure = new FormattedText(
+                "8",
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                typeface,
+                FontSize,
+                Foreground);
 
-            _charWidth = measure.Width;//   Measure().Width;
-            measure.Text = ",";
-            _commaWidth = measure.Bounds.Width*0.5;// Measure().Width;
-            
+            _charWidth = measure.Width;
+            var commaMeasure = new FormattedText(
+                ",",
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                typeface,
+                FontSize,
+                Foreground);
+            _commaWidth = commaMeasure.Width * 0.5;
+
             FormattedText[] text = new FormattedText[places + (places +2)/ 3 - 1];
+            _formattedIsComma = new bool[text.Length];
             int column = 0;
             int place = places - 1;
             for (int i = 0; i < places; i++)
@@ -220,6 +237,7 @@ namespace Patroclus.Avalonia.Controls
                 text[column++] = new FormattedText(c, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground);
                 if (place % 3 == 0 && place > 0)
                 {
+                    _formattedIsComma[column] = true;
                     text[column++] = new FormattedText(",", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, FontSize, Foreground);
                 }
                 place--;
@@ -277,6 +295,7 @@ namespace Patroclus.Avalonia.Controls
             AvaloniaProperty.Register<NumericTextPresenter, TextWrapping>(nameof(TextWrapping));
 
         private FormattedText[] _formattedText;
+        private bool[] _formattedIsComma;
  //       private Size _constraint;
 
         /// <summary>
@@ -290,6 +309,7 @@ namespace Patroclus.Avalonia.Controls
             Observable.Merge<AvaloniaPropertyChangedEventArgs>(
                 ValueProperty.Changed,
                 TextAlignmentProperty.Changed,
+                ForegroundProperty.Changed,
                 FontSizeProperty.Changed,
                 FontStyleProperty.Changed,
                 FontWeightProperty.Changed).AddClassHandler<NumericTextPresenter>((x, _) => x.InvalidateFormattedText());
