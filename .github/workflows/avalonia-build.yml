@@ -1,0 +1,30 @@
+name: Avalonia build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and check profiles (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+      - name: Build Avalonia application including XAML
+        run: dotnet build Patroclus.Avalonia/Patroclus.Avalonia.csproj --configuration Release --nologo
+      - name: Check model profiles and discovery packets
+        run: dotnet run --project tests/RadioProfiles/RadioProfiles.csproj --configuration Release
