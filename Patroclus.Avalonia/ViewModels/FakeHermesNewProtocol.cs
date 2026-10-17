@@ -1,4 +1,4 @@
-﻿using Avalonia.Threading;
+using Avalonia.Threading;
 using ReactiveUI;
 using System;
 using System.Collections.Concurrent;
@@ -36,6 +36,7 @@ namespace Patroclus.Avalonia.ViewModels
         private Thread handleCommsThread;
 
         public int port { get; set; } //Port for the Client to use
+        public RadioProfile Profile { get; set; } = RadioProfile.All[1];
 
 
         IPEndPoint ClientIpEndPoint;
@@ -50,7 +51,6 @@ namespace Patroclus.Avalonia.ViewModels
         uint micSeqNo = 0;
 
         double timebase = 0.0;
-        byte hermesCodeVersion = 30;
         DateTime startTime;
         bool running = false;
 
@@ -251,6 +251,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
         public override void Stop()
         {
             closing = true;
+            handleCommsThread?.Join();
            // handleCommsThread.Abort();
             generalClient.Client.Close();
             rxSpecificClient.Client.Close();
@@ -258,7 +259,8 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
             highPriorityClient.Client.Close();
             tx0IQClient.Client.Close();
             rxAudioClient.Client.Close();
-            //TODO rest of cleanup
+            foreach (var rxClient in rxClients.Values) rxClient.Close();
+            rxClients.Clear();
 
             base.Stop();
         }
@@ -452,25 +454,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
             else if (received[4] == 2)
             {
                 //discovery
-                byte[] response = new byte[60];
-                response[0] = 0x0;
-                response[1] = 0x0;
-                response[2] = 0x0;
-                response[3] = 0x0;
-                response[4] = 0x02;
-                //add mac address - kiss does not like blank one
-                response[5] = 0x00;
-                response[6] = 0x00;
-                response[7] = 0x00;
-                response[8] = 0x00;
-                response[9] = 0x00;
-                response[10] = 0x01;
-
-                response[11] = 0x02;//board type
-                response[12] = 23;//code version
-
-                response[20] = 7;
-                response[21] = 1;
+                byte[] response = Profile.CreateDiscoveryResponse();
 
                 status = "Discovered";
                 seqNo = 1;

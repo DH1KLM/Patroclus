@@ -1,4 +1,4 @@
-﻿using Avalonia.Threading;
+using Avalonia.Threading;
 using ReactiveUI;
 using System;
 using System.Collections.Concurrent;
@@ -24,8 +24,9 @@ namespace Patroclus.Avalonia.ViewModels
         private Thread handleCommsThread;
 
         public int port { get; set; } //Port for the Client to use
-        public byte boardID { get; set; }
-        public byte hermesCodeVersion { get; set; }
+        public RadioProfile Profile { get; set; } = RadioProfile.All[0];
+        public byte boardID => Profile.BoardId;
+        public byte hermesCodeVersion => Profile.FirmwareVersion;
         
         ConcurrentQueue<receivedPacket> msgQueue = new ConcurrentQueue<receivedPacket>();
         
@@ -182,6 +183,7 @@ namespace Patroclus.Avalonia.ViewModels
         public override void Stop()
         {
             closing = true;
+            handleCommsThread?.Join();
 
             client.Close();
             
@@ -432,21 +434,8 @@ namespace Patroclus.Avalonia.ViewModels
             if (received[2] == 2)
             {
                 //discovery
-                byte[] response = new byte[60];
-                response[0] = 0xef;
-                response[1] = 0xfe;
-                response[2] = 0x02;
-                //add mac address - kiss does not like blank one
-                response[3] = 0x00;
-                response[4] = 0x00;
-                response[5] = 0x00;
-                response[6] = 0x00;
-                response[7] = 0x00;
-                response[8] = 0x01;
+                byte[] response = Profile.CreateDiscoveryResponse();
 
-                response[9] = hermesCodeVersion;//code version
-                response[10] = boardID;//board type
-                
                 status = "Discovered";
                 seqNo = 1;
                 seqNoBs = 1;
