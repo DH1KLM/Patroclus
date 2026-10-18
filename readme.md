@@ -32,7 +32,7 @@ It has been tested with the following sdr clients
 The original Patroclus project is depreciated but can be built with Visual Studio 2013 or later.
 It uses .net4.5
 
-Patroclus.Avalonia is where any further development will be, it has the advantage of running on windows, linux and macos. To build install the .net6.0 sdk then from the Patroclus.Avalonia directory run the following:-
+Patroclus.Avalonia is where any further development will be, it has the advantage of running on windows, linux and macos. To build install the .NET 10 SDK then from the Patroclus.Avalonia directory run the following:-
 
 dotnet restore
 
