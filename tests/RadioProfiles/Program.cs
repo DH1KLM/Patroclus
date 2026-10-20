@@ -99,6 +99,14 @@ static class Program
               "zero host ADC count must reject receiver assignments");
         Check(RadioHardwareBehavior.SupportsReceiverAdc(null, 0, 99),
               "unspecified hardware profiles should preserve legacy behavior");
+        Check(RadioHardwareBehavior.ReportsAdc1Clip(oneAdc, 1, 0, true),
+              "clipping on ADC1 should reach high-priority status");
+        Check(!RadioHardwareBehavior.ReportsAdc1Clip(twoAdc, 2, 1, true),
+              "ADC2 clipping must not be reported as ADC1 clipping");
+        Check(!RadioHardwareBehavior.ReportsAdc1Clip(oneAdc, 1, 0, false),
+              "unclipped samples must not set the ADC1 clip status");
+        Check(!RadioHardwareBehavior.ReportsAdc1Clip(oneAdc, 1, 1, true),
+              "clipping from an unavailable ADC must not reach status");
         Check(SamplePacketSchedule.CalculateDuePackets(192000, 238, TimeSpan.TicksPerSecond) == 806,
               "192 kHz packet rate");
         Check(SamplePacketSchedule.CalculateDuePackets(48000, 720, TimeSpan.TicksPerSecond) == 66,
