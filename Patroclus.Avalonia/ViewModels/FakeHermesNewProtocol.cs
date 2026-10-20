@@ -3,6 +3,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -51,7 +52,7 @@ namespace Patroclus.Avalonia.ViewModels
         uint micSeqNo = 0;
 
         double timebase = 0.0;
-        DateTime startTime;
+        readonly Stopwatch transmissionClock = new Stopwatch();
         bool running = false;
 
         double clk = 122880000;
@@ -304,26 +305,21 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                 {
                     
                     adc1clip = false;
-                    int channels = receivers.Count();
                     int nSamples = 238;
                    
-                    DateTime now = DateTime.Now;
-                    long totalTime = (long)(now - startTime).TotalMilliseconds;
+                    long elapsedTicks = transmissionClock.Elapsed.Ticks;
 
-                    double ttimebase = timebase;
-
-                    for (int ri = 0; ri < receivers.Count; ri++)
+                    // Generate from the network-owned slot table. The UI collection is
+                    // updated asynchronously and must not control packet scheduling.
+                    for (int ri = 0; ri < receiversByIdx.Length; ri++)
                     {
-                        
-                        var rx = receivers[ri];
-                        if (rx != null)
+                        var rx = receiversByIdx[ri];
+                        if (rx != null && rx.bandwidth > 0 && rxClients.TryGetValue(rx, out var rxClient))
                         {
                             double timeStep = 1.0 / rx.bandwidth;
-
-                            //calculate number of packets to maintain sync
-                            long nPacketsCalculated = rx.bandwidth / (nSamples) * totalTime / 1000;
-
-                            long packetsToSend = nPacketsCalculated - rx.packetCount;
+                            long nPacketsCalculated = SamplePacketSchedule.CalculateDuePackets(
+                                rx.bandwidth, nSamples, elapsedTicks);
+                            long packetsToSend = Math.Max(0, nPacketsCalculated - rx.packetCount);
 
 
 
@@ -359,7 +355,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
 
 
                                 rx.GenerateSignal(databuf, 16, 6, nSamples, rx.timebase, timeStep);
-                                rxClients[rx].Send(databuf, databuf.Length, ClientIpEndPoint);
+                                rxClient.Send(databuf, databuf.Length, ClientIpEndPoint);
                                 rx.packetCount++;
                                 packetsSent++;
                                 rx.timebase += nSamples * timeStep;
@@ -373,9 +369,10 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                     //  if (highPriorityToPC != null) 
                     sendHighPriorityToPC();
 
-                    long nMicPacketsCalculated = 48000 / 720 * totalTime / 1000;
-                    uint micPacketsToSend = ((uint)nMicPacketsCalculated) - micSeqNo;
-                    for (int i = 0; i < micPacketsToSend; i++) sendMicData();
+                    long nMicPacketsCalculated = SamplePacketSchedule.CalculateDuePackets(
+                        48000, 720, elapsedTicks);
+                    long micPacketsToSend = Math.Max(0, nMicPacketsCalculated - micSeqNo);
+                    for (long i = 0; i < micPacketsToSend; i++) sendMicData();
                 }
 
 
@@ -445,13 +442,14 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
         public void handleGeneralPacket(receivedPacket packet)
         {
             //     Console.Out.WriteLine("gp");
+            if (packet == null || packet.received == null || packet.endPoint == null) return;
             byte[] received = packet.received;
             if (packet.endPoint.Address.Equals(udpBroadcast))
             {
 
             }
             //old style discovery
-            else if (received[4] == 2)
+            else if (received.Length > 4 && received[4] == 2)
             {
                 //discovery
                 byte[] response = Profile.CreateDiscoveryResponse();
@@ -465,7 +463,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
 
                 Console.WriteLine("disc");
             }
-            else if (received[4] == 0)
+            else if (received.Length >= 19 && received[4] == 0)
             {
                 RxSpecificPort = (received[5] << 8) + received[6];
                 TxSpecificPort = (received[7] << 8) + received[8];
@@ -488,9 +486,8 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
         private void handleRxSpecificPacket(receivedPacket packet)
         {
             //     Console.Out.WriteLine("rxsp");
-            int nReceivers = 0;
             byte[] received = packet.received;
-
+            if (received == null || received.Length < 20 + 6 * (maxReceivers - 1)) return;
             int adcs = received[4];
 
 
@@ -502,14 +499,12 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                     int idx = f * 8 + i;
                     if ((received[7 + f] & mask) != 0)
                     {
-                        nReceivers++;
                         if (receiversByIdx[idx] == null)
                         {
-                            receiversByIdx[idx] = new receiver("RX" + idx);
-                            Dispatcher.UIThread.InvokeAsync(new Action(() => {
-                                    receivers.Add(receiversByIdx[idx]);
-                                }));
-                            rxClients.Add(receiversByIdx[idx], new UdpClient(Rx0Port + idx));
+                            var rx = new receiver("RX" + idx);
+                            receiversByIdx[idx] = rx;
+                            rxClients.Add(rx, new UdpClient(Rx0Port + idx));
+                            Dispatcher.UIThread.InvokeAsync(new Action(() => receivers.Add(rx)));
                         }
                     }
                     else
@@ -560,6 +555,7 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
             //         Console.Out.WriteLine("hpp");
 
             byte[] received = packet.received;
+            if (received == null || received.Length < 333) return;
             bool run = ((received[4] & 0x01) != 0);
             if (run != running)
             {
@@ -610,15 +606,16 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
         }
         void resetTransmission()
         {
-            startTime = DateTime.Now;
             actualPacketCount = 0;
             micSeqNo = 0;
-            foreach (receiver rx in receivers)
+            foreach (receiver rx in receiversByIdx)
             {
+                if (rx == null) continue;
                 rx.seq = 0;
                 rx.packetCount = 0;
                 rx.timebase = 0;
             }
+            transmissionClock.Restart();
         }
     }
     public class udpConnection

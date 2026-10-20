@@ -60,6 +60,14 @@ static class Program
             packet[10] = 255;
             Check(profile.CreateDiscoveryResponse()[10] != 255, "shared response buffer");
         }
+        Check(SamplePacketSchedule.CalculateDuePackets(192000, 238, TimeSpan.TicksPerSecond) == 806,
+              "192 kHz packet rate");
+        Check(SamplePacketSchedule.CalculateDuePackets(48000, 720, TimeSpan.TicksPerSecond) == 66,
+              "48 kHz microphone packet rate");
+        Check(SamplePacketSchedule.CalculateDuePackets(192000, 238, TimeSpan.TicksPerSecond / 2) == 403,
+              "half-second packet deadline");
+        Check(SamplePacketSchedule.CalculateDuePackets(192000, 238, 0) == 0,
+              "initial packet deadline");
         Console.WriteLine($"PASS: {RadioProfile.All.Count} profiles, model/board mappings and discovery packets");
     }
 }

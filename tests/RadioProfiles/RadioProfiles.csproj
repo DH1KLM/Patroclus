@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Patroclus.Avalonia/ViewModels/RadioProfile.cs" Link="RadioProfile.cs" />
+    <Compile Include="../../Patroclus.Avalonia/ViewModels/SamplePacketSchedule.cs" Link="SamplePacketSchedule.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
 </Project>
