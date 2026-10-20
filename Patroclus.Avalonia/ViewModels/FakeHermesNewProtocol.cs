@@ -359,6 +359,12 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
 
 
                                 rx.GenerateSignal(databuf, 16, 6, nSamples, rx.timebase, timeStep);
+                                if (RadioHardwareBehavior.ReportsAdc1Clip(
+                                    Profile?.HardwareConfiguration,
+                                    receiverHostAdcCountByIdx[ri],
+                                    receiverAdcByIdx[ri],
+                                    rx.adcClip))
+                                    adc1clip = true;
                                 rxClient.Send(databuf, databuf.Length, ClientIpEndPoint);
                                 rx.packetCount++;
                                 packetsSent++;
