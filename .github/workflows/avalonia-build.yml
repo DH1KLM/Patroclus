@@ -2,7 +2,7 @@ name: Avalonia build
 
 on:
   push:
-    branches: [master]
+    branches: [master, feature/streaming-stability-and-control-diagnostics]
   pull_request:
     branches: [master]
   workflow_dispatch:
