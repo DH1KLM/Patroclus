@@ -59,6 +59,15 @@ The original Hermes and Hermes Lite choices are retained.
 | ANAN-G2E | Hermes C10 | — | 20 |
 | Red Pitaya, ANVELINA Pro3 | Orion MkII compatible | 10 | 5 |
 
+Thetis model setup also differs by board family. The profile detail line shows the
+Thetis initialization values for RX ADC selection, MKII BPF mode, ADC supply, and
+left/right audio swap. The G2 Ultra and 7000DLE MKIII entries explicitly label
+board-family fallback values because this Thetis revision has no dedicated model
+case for those names. The values mirror the pinned [Thetis clsHardwareSpecific.cs](https://github.com/ramdor/Thetis/blob/852bf0ef0b4f3886a13fc2846489aee16f361872/Project%20Files/Source/Console/clsHardwareSpecific.cs)
+model switch; they are not a claim that Patroclus currently simulates the physical
+filter board, PA or ADC circuitry. Profiles with no explicit Thetis mapping are
+left unspecified.
+
 Board mappings follow [Thetis enums.cs](https://github.com/ramdor/Thetis/blob/852bf0ef0b4f3886a13fc2846489aee16f361872/Project%20Files/Source/Console/enums.cs)
 and [its discovery parser](https://github.com/ramdor/Thetis/blob/852bf0ef0b4f3886a13fc2846489aee16f361872/Project%20Files/Source/Console/HPSDR/clsRadioDiscovery.cs).
 Mk variants and G2 Ultra are local model labels for the corresponding board

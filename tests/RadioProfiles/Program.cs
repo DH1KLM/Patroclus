@@ -60,6 +60,31 @@ static class Program
             packet[10] = 255;
             Check(profile.CreateDiscoveryResponse()[10] != 255, "shared response buffer");
         }
+        var hardwareDefaults = new[]
+        {
+            ("ANAN-10", 1, false, 33, true), ("ANAN-10E", 1, false, 33, true),
+            ("ANAN-100D", 2, false, 33, false), ("ANAN-200D", 2, false, 50, false),
+            ("ANAN-7000DLE", 2, true, 50, false), ("ANAN-8000DLE", 2, true, 50, false),
+            ("ANAN-G2", 2, true, 50, false), ("ANAN-G2E", 1, true, 33, false),
+            ("Red Pitaya", 2, false, 50, false), ("ANVELINA Pro3", 2, true, 50, false)
+        };
+        foreach (var expectedHardware in hardwareDefaults)
+        {
+            var hardware = RadioProfile.All.Single(p => p.Name == expectedHardware.Item1).HardwareConfiguration;
+            Check(hardware != null, expectedHardware.Item1 + " hardware configuration missing");
+            Check(hardware.RxAdcSelection == expectedHardware.Item2 &&
+                  hardware.MkiiBpfEnabled == expectedHardware.Item3 &&
+                  hardware.AdcSupplyVolts == expectedHardware.Item4 &&
+                  hardware.SwapLeftRightAudio == expectedHardware.Item5,
+                  expectedHardware.Item1 + " Thetis hardware setup mapping");
+        }
+        Check(RadioProfile.All.Single(p => p.Name == "ANAN-G2 Ultra").HardwareConfiguration.IsFamilyBasedFallback,
+              "G2 Ultra must disclose its board-family fallback");
+        Check(RadioProfile.All.Single(p => p.Name == "ANAN-7000DLE MKIII" && p.Protocol == 1)
+                  .HardwareConfiguration.IsFamilyBasedFallback,
+              "7000DLE MKIII must disclose its board-family fallback");
+        Check(RadioProfile.All.Single(p => p.Name == "Hermes Lite").HardwareConfiguration == null,
+              "unverified Hermes Lite model setup must stay unspecified");
         Check(SamplePacketSchedule.CalculateDuePackets(192000, 238, TimeSpan.TicksPerSecond) == 806,
               "192 kHz packet rate");
         Check(SamplePacketSchedule.CalculateDuePackets(48000, 720, TimeSpan.TicksPerSecond) == 66,
