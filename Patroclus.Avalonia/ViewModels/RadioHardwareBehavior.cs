@@ -19,7 +19,7 @@ namespace Patroclus.Avalonia.ViewModels
 
             // Thetis SetRxADC stores this value as num_adc and sends it as the
             // board's available ADC count.
-            return adcIndex < configuration.RxAdcSelection;
+            return adcIndex < configuration.AdcCount;
         }
     }
 }
