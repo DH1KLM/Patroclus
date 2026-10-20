@@ -33,6 +33,8 @@ namespace Patroclus.Avalonia.ViewModels
         Dictionary<receiver, UdpClient> rxClients = new Dictionary<receiver, UdpClient>();
 
         receiver[] receiversByIdx = new receiver[maxReceivers];
+        private readonly int[] receiverAdcByIdx = new int[maxReceivers];
+        private readonly int[] receiverHostAdcCountByIdx = new int[maxReceivers];
 
         private Thread handleCommsThread;
 
@@ -314,7 +316,9 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                     for (int ri = 0; ri < receiversByIdx.Length; ri++)
                     {
                         var rx = receiversByIdx[ri];
-                        if (rx != null && rx.bandwidth > 0 && rxClients.TryGetValue(rx, out var rxClient))
+                        if (rx != null && rx.bandwidth > 0 && rxClients.TryGetValue(rx, out var rxClient) &&
+                            RadioHardwareBehavior.SupportsReceiverAdc(Profile?.HardwareConfiguration,
+                                receiverHostAdcCountByIdx[ri], receiverAdcByIdx[ri]))
                         {
                             double timeStep = 1.0 / rx.bandwidth;
                             long nPacketsCalculated = SamplePacketSchedule.CalculateDuePackets(
@@ -497,7 +501,11 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                 for (int i = 0; i < 8; i++)
                 {
                     int idx = f * 8 + i;
-                    if ((received[7 + f] & mask) != 0)
+                    int adcIndex = received[17 + idx * 6];
+                    bool slotEnabled = (received[7 + f] & mask) != 0;
+                    bool adcAvailable = RadioHardwareBehavior.SupportsReceiverAdc(
+                        Profile?.HardwareConfiguration, adcs, adcIndex);
+                    if (slotEnabled && adcAvailable)
                     {
                         if (receiversByIdx[idx] == null)
                         {
@@ -527,6 +535,8 @@ Bits - [0]Time stamp, [1]VITA-49, [2]VNA mode
                     }
                     if (receiversByIdx[idx] != null)
                     {
+                        receiverAdcByIdx[idx] = adcIndex;
+                        receiverHostAdcCountByIdx[idx] = adcs;
                         int srate = (received[18 + idx * 6] << 8) + received[19 + idx * 6];
                         receiversByIdx[idx].bandwidth = srate * 1000;
                     }
