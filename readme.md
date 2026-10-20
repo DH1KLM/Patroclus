@@ -64,7 +64,9 @@ available ADC count, MKII BPF mode, ADC supply, and left/right audio swap values
 from the pinned [Thetis clsHardwareSpecific.cs](https://github.com/ramdor/Thetis/blob/852bf0ef0b4f3886a13fc2846489aee16f361872/Project%20Files/Source/Console/clsHardwareSpecific.cs)
 model switch. The emulator applies the model's ADC count to receiver DDC-to-ADC
 assignments, so a receiver mapped to an unavailable ADC is not created or streamed.
-The G2 Ultra and 7000DLE MKIII entries explicitly label board-family fallback
+Clipping detected in generated samples assigned to ADC1 is reflected in the
+high-priority status packet. The G2 Ultra and 7000DLE MKIII entries explicitly
+label board-family fallback
 values because this Thetis revision has no dedicated model case for those names.
 MKII BPF, supply voltage, audio swapping, and physical RF/PA/filter behavior remain
 configuration metadata; the emulator does not yet simulate those circuits.
