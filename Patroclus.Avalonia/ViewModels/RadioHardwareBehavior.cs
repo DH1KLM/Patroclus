@@ -21,5 +21,14 @@ namespace Patroclus.Avalonia.ViewModels
             // board's available ADC count.
             return adcIndex < configuration.AdcCount;
         }
+
+        public static bool ReportsAdc1Clip(RadioHardwareConfiguration configuration,
+                                           int hostAdcCount, int adcIndex, bool clipped)
+        {
+            // The first DDC ADC assignment maps to ADC1 in the high-priority
+            // status byte emitted by this emulator.
+            return clipped && adcIndex == 0 &&
+                SupportsReceiverAdc(configuration, hostAdcCount, adcIndex);
+        }
     }
 }
