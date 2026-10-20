@@ -14,11 +14,12 @@ namespace Patroclus.Avalonia.ViewModels
         public bool SwapLeftRightAudio { get; }
         public bool IsFamilyBasedFallback { get; }
 
-        public RadioHardwareConfiguration(int rxAdcSelection, bool mkiiBpfEnabled,
+        public RadioHardwareConfiguration(int adcCount, bool mkiiBpfEnabled,
                                           int adcSupplyVolts, bool swapLeftRightAudio,
                                           bool isFamilyBasedFallback = false)
         {
-            AdcCount = rxAdcSelection;
+            if (adcCount <= 0) throw new ArgumentOutOfRangeException(nameof(adcCount));
+            AdcCount = adcCount;
             MkiiBpfEnabled = mkiiBpfEnabled;
             AdcSupplyVolts = adcSupplyVolts;
             SwapLeftRightAudio = swapLeftRightAudio;
