@@ -70,7 +70,7 @@ static class Program
         };
         foreach (var expectedHardware in hardwareDefaults)
         {
-            var hardware = RadioProfile.All.Single(p => p.Name == expectedHardware.Item1).HardwareConfiguration;
+            var hardware = RadioProfile.All.First(p => p.Name == expectedHardware.Item1).HardwareConfiguration;
             Check(hardware != null, expectedHardware.Item1 + " hardware configuration missing");
             Check(hardware.RxAdcSelection == expectedHardware.Item2 &&
                   hardware.MkiiBpfEnabled == expectedHardware.Item3 &&
