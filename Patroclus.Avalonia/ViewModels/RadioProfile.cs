@@ -25,7 +25,7 @@ namespace Patroclus.Avalonia.ViewModels
             IsFamilyBasedFallback = isFamilyBasedFallback;
         }
 
-        public string Description => $"RX ADC {AdcCount}; MKII BPF {(MkiiBpfEnabled ? "on" : "off")}; " +
+        public string Description => $"ADC count {AdcCount}; MKII BPF {(MkiiBpfEnabled ? "on" : "off")}; " +
             $"ADC supply {AdcSupplyVolts} V; LR audio swap {(SwapLeftRightAudio ? "on" : "off")}" +
             (IsFamilyBasedFallback ? " (board-family fallback)" : "");
     }
