@@ -72,7 +72,7 @@ static class Program
         {
             var hardware = RadioProfile.All.First(p => p.Name == expectedHardware.Item1).HardwareConfiguration;
             Check(hardware != null, expectedHardware.Item1 + " hardware configuration missing");
-            Check(hardware.RxAdcSelection == expectedHardware.Item2 &&
+            Check(hardware.AdcCount == expectedHardware.Item2 &&
                   hardware.MkiiBpfEnabled == expectedHardware.Item3 &&
                   hardware.AdcSupplyVolts == expectedHardware.Item4 &&
                   hardware.SwapLeftRightAudio == expectedHardware.Item5,
@@ -85,6 +85,20 @@ static class Program
               "7000DLE MKIII must disclose its board-family fallback");
         Check(RadioProfile.All.Single(p => p.Name == "Hermes Lite").HardwareConfiguration == null,
               "unverified Hermes Lite model setup must stay unspecified");
+        var oneAdc = RadioProfile.All.First(p => p.Name == "ANAN-10").HardwareConfiguration;
+        var twoAdc = RadioProfile.All.First(p => p.Name == "ANAN-100D").HardwareConfiguration;
+        Check(RadioHardwareBehavior.SupportsReceiverAdc(oneAdc, 1, 0),
+              "Hermes-family ADC 0 should be available");
+        Check(!RadioHardwareBehavior.SupportsReceiverAdc(oneAdc, 2, 1),
+              "Hermes-family models must reject ADC 1");
+        Check(RadioHardwareBehavior.SupportsReceiverAdc(twoAdc, 2, 1),
+              "two-ADC models should accept ADC 1");
+        Check(!RadioHardwareBehavior.SupportsReceiverAdc(twoAdc, 1, 1),
+              "host ADC count must still bound receiver assignments");
+        Check(!RadioHardwareBehavior.SupportsReceiverAdc(twoAdc, 0, 0),
+              "zero host ADC count must reject receiver assignments");
+        Check(RadioHardwareBehavior.SupportsReceiverAdc(null, 0, 99),
+              "unspecified hardware profiles should preserve legacy behavior");
         Check(SamplePacketSchedule.CalculateDuePackets(192000, 238, TimeSpan.TicksPerSecond) == 806,
               "192 kHz packet rate");
         Check(SamplePacketSchedule.CalculateDuePackets(48000, 720, TimeSpan.TicksPerSecond) == 66,
