@@ -60,13 +60,15 @@ The original Hermes and Hermes Lite choices are retained.
 | Red Pitaya, ANVELINA Pro3 | Orion MkII compatible | 10 | 5 |
 
 Thetis model setup also differs by board family. The profile detail line shows the
-Thetis initialization values for RX ADC selection, MKII BPF mode, ADC supply, and
-left/right audio swap. The G2 Ultra and 7000DLE MKIII entries explicitly label
-board-family fallback values because this Thetis revision has no dedicated model
-case for those names. The values mirror the pinned [Thetis clsHardwareSpecific.cs](https://github.com/ramdor/Thetis/blob/852bf0ef0b4f3886a13fc2846489aee16f361872/Project%20Files/Source/Console/clsHardwareSpecific.cs)
-model switch; they are not a claim that Patroclus currently simulates the physical
-filter board, PA or ADC circuitry. Profiles with no explicit Thetis mapping are
-left unspecified.
+available ADC count, MKII BPF mode, ADC supply, and left/right audio swap values
+from the pinned [Thetis clsHardwareSpecific.cs](https://github.com/ramdor/Thetis/blob/852bf0ef0b4f3886a13fc2846489aee16f361872/Project%20Files/Source/Console/clsHardwareSpecific.cs)
+model switch. The emulator applies the model's ADC count to receiver DDC-to-ADC
+assignments, so a receiver mapped to an unavailable ADC is not created or streamed.
+The G2 Ultra and 7000DLE MKIII entries explicitly label board-family fallback
+values because this Thetis revision has no dedicated model case for those names.
+MKII BPF, supply voltage, audio swapping, and physical RF/PA/filter behavior remain
+configuration metadata; the emulator does not yet simulate those circuits.
+Profiles with no explicit Thetis mapping retain the legacy receiver behavior.
 
 Board mappings follow [Thetis enums.cs](https://github.com/ramdor/Thetis/blob/852bf0ef0b4f3886a13fc2846489aee16f361872/Project%20Files/Source/Console/enums.cs)
 and [its discovery parser](https://github.com/ramdor/Thetis/blob/852bf0ef0b4f3886a13fc2846489aee16f361872/Project%20Files/Source/Console/HPSDR/clsRadioDiscovery.cs).
