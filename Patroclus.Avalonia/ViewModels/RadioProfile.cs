@@ -8,7 +8,7 @@ namespace Patroclus.Avalonia.ViewModels
     /// <summary>Model initialization settings mirrored from Thetis clsHardwareSpecific.</summary>
     public sealed class RadioHardwareConfiguration
     {
-        public int RxAdcSelection { get; }
+        public int AdcCount { get; }
         public bool MkiiBpfEnabled { get; }
         public int AdcSupplyVolts { get; }
         public bool SwapLeftRightAudio { get; }
@@ -18,14 +18,14 @@ namespace Patroclus.Avalonia.ViewModels
                                           int adcSupplyVolts, bool swapLeftRightAudio,
                                           bool isFamilyBasedFallback = false)
         {
-            RxAdcSelection = rxAdcSelection;
+            AdcCount = rxAdcSelection;
             MkiiBpfEnabled = mkiiBpfEnabled;
             AdcSupplyVolts = adcSupplyVolts;
             SwapLeftRightAudio = swapLeftRightAudio;
             IsFamilyBasedFallback = isFamilyBasedFallback;
         }
 
-        public string Description => $"RX ADC {RxAdcSelection}; MKII BPF {(MkiiBpfEnabled ? "on" : "off")}; " +
+        public string Description => $"RX ADC {AdcCount}; MKII BPF {(MkiiBpfEnabled ? "on" : "off")}; " +
             $"ADC supply {AdcSupplyVolts} V; LR audio swap {(SwapLeftRightAudio ? "on" : "off")}" +
             (IsFamilyBasedFallback ? " (board-family fallback)" : "");
     }
